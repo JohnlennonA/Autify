@@ -1,29 +1,6 @@
-import React, { useState } from 'react';
-import { X, Car, Plus, AlertCircle, CheckCircle2, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Car, Plus, AlertCircle, CheckCircle2, Camera, Paperclip, Trash2, Image as ImageIcon } from 'lucide-react';
 import { TITLE_STATUSES } from '../mockData';
-
-const SAMPLE_PHOTO_PRESETS = [
-  {
-    name: 'Mustang / Muscle',
-    url: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    name: 'Sedan / Camry',
-    url: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    name: 'Sport / Civic',
-    url: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    name: 'Truck / Silverado',
-    url: 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    name: 'SUV / Grand Cherokee',
-    url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80'
-  }
-];
 
 export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
   if (!isOpen) return null;
@@ -42,16 +19,50 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
     purchasePrice: '',
     estimatedSalePrice: '',
     purchaseDate: new Date().toISOString().split('T')[0],
-    photoUrl: SAMPLE_PHOTO_PRESETS[0].url
   });
 
+  // Photos stored as { file: File, preview: string (blob URL) }
+  const [photos, setPhotos] = useState([]);
   const [error, setError] = useState('');
+
+  const cameraInputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const handleVinChange = (e) => {
     // Keep alphanumeric and uppercase, max 17
     const cleaned = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 17);
     setFormData((prev) => ({ ...prev, vin: cleaned }));
     if (error && cleaned.length === 17) setError('');
+  };
+
+  // ─── Photo Handlers ──────────────────────────────────────────
+  const handlePhotoFiles = (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+
+    const newPhotos = Array.from(fileList).map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      // Future: when Supabase is connected, upload file here
+      // and replace preview with the public URL from storage
+    }));
+
+    setPhotos((prev) => [...prev, ...newPhotos]);
+  };
+
+  const handleCameraCapture = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const handleFileAttach = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removePhoto = (index) => {
+    setPhotos((prev) => {
+      const removed = prev[index];
+      if (removed?.preview) URL.revokeObjectURL(removed.preview);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleSubmit = (e) => {
@@ -76,6 +87,12 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
       return;
     }
 
+    // Build photo URLs array — uses blob preview URLs for now.
+    // Phase 2: Replace with Supabase Storage public URLs after upload.
+    const photoUrls = photos.length > 0
+      ? photos.map((p) => p.preview)
+      : ['https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80'];
+
     const newVehicle = {
       id: `veh-${Date.now().toString().slice(-4)}`,
       vin: formData.vin,
@@ -90,7 +107,7 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
       estimatedSalePrice: estimatedNum,
       soldPrice: null,
       purchaseDate: formData.purchaseDate || new Date().toISOString().split('T')[0],
-      photos: [formData.photoUrl || SAMPLE_PHOTO_PRESETS[0].url],
+      photos: photoUrls,
       expenses: []
     };
 
@@ -102,7 +119,7 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
-      {/* Strict Anti-IA Rule: Clean unified dark surface without colored border-t-4 */}
+      {/* Clean unified dark surface */}
       <div className="relative w-full max-w-2xl rounded-2xl border border-white/[0.08] bg-[#141619] shadow-2xl overflow-hidden p-6">
         
         {/* Header */}
@@ -298,37 +315,106 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
             </div>
           </div>
 
-          {/* Photo URL & Quick Presets */}
-          <div className="rounded-xl bg-[#1E2025] border border-white/5 p-3 space-y-2">
+          {/* ─── PHOTOS SECTION ─────────────────────────────────────── */}
+          <div className="rounded-xl bg-[#1E2025] border border-white/5 p-3.5 space-y-3">
             <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5 text-blue-400" /> Foto Principal (URL o Preajuste)
+              <ImageIcon className="w-3.5 h-3.5 text-blue-400" /> Fotos del Vehículo
             </label>
-            <input
-              type="url"
-              value={formData.photoUrl}
-              onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-              placeholder="https://..."
-              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-            />
-            
-            {/* Quick preset chips */}
-            <div className="flex items-center gap-1.5 flex-wrap pt-1">
-              <span className="text-[10px] text-slate-400">Preajustes rápidos:</span>
-              {SAMPLE_PHOTO_PRESETS.map((p) => (
-                <button
-                  key={p.name}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, photoUrl: p.url })}
-                  className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
-                    formData.photoUrl === p.url
-                      ? 'bg-blue-600/30 text-blue-300 border-blue-500/40'
-                      : 'bg-white/5 text-slate-400 border-white/5 hover:text-white'
-                  }`}
-                >
-                  {p.name}
-                </button>
-              ))}
+
+            {/* Action Buttons: Camera + Attach */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Tomar Foto — triggers camera on mobile, file picker on desktop */}
+              <button
+                type="button"
+                onClick={handleCameraCapture}
+                className="group flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 border-dashed border-white/10 hover:border-emerald-500/40 bg-[#141619] hover:bg-emerald-500/5 transition-all cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 border border-emerald-500/20 flex items-center justify-center transition-all">
+                  <Camera className="w-5 h-5 text-emerald-400" />
+                </div>
+                <span className="text-xs font-semibold text-slate-300 group-hover:text-emerald-300 transition-colors">
+                  Tomar Foto
+                </span>
+              </button>
+
+              {/* Adjuntar Foto — opens file picker / gallery */}
+              <button
+                type="button"
+                onClick={handleFileAttach}
+                className="group flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 border-dashed border-white/10 hover:border-blue-500/40 bg-[#141619] hover:bg-blue-500/5 transition-all cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 group-hover:bg-blue-500/20 border border-blue-500/20 flex items-center justify-center transition-all">
+                  <Paperclip className="w-5 h-5 text-blue-400" />
+                </div>
+                <span className="text-xs font-semibold text-slate-300 group-hover:text-blue-300 transition-colors">
+                  Adjuntar Foto
+                </span>
+              </button>
             </div>
+
+            {/* Hidden native file inputs */}
+            {/* Camera input: capture="environment" triggers rear camera on mobile */}
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                handlePhotoFiles(e.target.files);
+                e.target.value = ''; // reset so same file can be re-selected
+              }}
+            />
+
+            {/* File/Gallery input: no capture attr = opens file picker or gallery */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                handlePhotoFiles(e.target.files);
+                e.target.value = '';
+              }}
+            />
+
+            {/* Photo Thumbnails Preview */}
+            {photos.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
+                {photos.map((photo, idx) => (
+                  <div
+                    key={idx}
+                    className="relative group/thumb aspect-[4/3] rounded-lg overflow-hidden border border-white/10 bg-[#141619]"
+                  >
+                    <img
+                      src={photo.preview}
+                      alt={`Foto ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Remove overlay */}
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(idx)}
+                      className="absolute top-1 right-1 p-1 rounded-md bg-black/70 text-rose-400 hover:text-rose-300 hover:bg-black/90 opacity-0 group-hover/thumb:opacity-100 transition-all"
+                      aria-label={`Eliminar foto ${idx + 1}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    {/* Index badge */}
+                    <span className="absolute bottom-1 left-1 text-[9px] font-mono font-bold bg-black/60 text-white/70 px-1.5 py-0.5 rounded">
+                      {idx + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {photos.length === 0 && (
+              <p className="text-[10px] text-slate-500 text-center pt-1">
+                Sin fotos adjuntas — se usará imagen genérica por defecto.
+              </p>
+            )}
           </div>
 
           {/* Submit CTA */}

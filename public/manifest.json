@@ -1,12 +1,13 @@
 {
   "short_name": "Autify",
   "name": "Autify — Car Flip OS",
-  "description": "Enterprise Car Flipping, Reconditioning and Financial Arbitrage Platform",
+  "description": "Plataforma empresarial de arbitraje, reparación y reventa de vehículos en Estados Unidos",
   "icons": [
     {
-      "src": "/images/autify-logo.png",
+      "src": "/images/autify-icon.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": "/",

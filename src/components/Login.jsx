@@ -1,59 +1,73 @@
-import React, { useState } from 'react';
-import { Car, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, KeyRound, Sparkles } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  Car,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ShieldCheck,
+  KeyRound,
+  Sparkles,
+} from "lucide-react";
 
 export const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState('dealer@autify.com');
-  const [password, setPassword] = useState('autify2026');
+  const [email, setEmail] = useState("dealer@autify.com");
+  const [password, setPassword] = useState("autify2026");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!email.trim() || !password.trim()) {
-      setError('Por favor ingresa tu correo y contraseña.');
+      setError("Por favor ingresa tu correo y contraseña.");
       return;
     }
 
     setIsLoading(true);
-    onLogin({
-      id: 'usr-01',
-      name: 'John Doe',
-      email: email.trim(),
-      role: 'Fleet Manager & Auction Specialist',
-      dealership: 'Autify Motors LLC (Miami, FL)',
-      avatarInitials: 'JD'
-    }, rememberMe);
+    onLogin(
+      {
+        id: "usr-01",
+        name: "John Lennon",
+        email: email.trim(),
+        role: "Fleet Manager & Auction Specialist",
+        dealership: "Autify Motors LLC (Miami, FL)",
+        avatarInitials: "JD",
+      },
+      rememberMe,
+    );
   };
 
   const handleQuickDemoAccess = () => {
-    setEmail('dealer@autify.com');
-    setPassword('autify2026');
+    setEmail("dealer@autify.com");
+    setPassword("autify2026");
     setIsLoading(true);
 
-    onLogin({
-      id: 'usr-01',
-      name: 'John Doe',
-      email: 'dealer@autify.com',
-      role: 'Fleet Manager & Auction Specialist',
-      dealership: 'Autify Motors LLC (Miami, FL)',
-      avatarInitials: 'JD'
-    }, true);
+    onLogin(
+      {
+        id: "usr-01",
+        name: "John Lennon",
+        email: "dealer@autify.com",
+        role: "Fleet Manager & Auction Specialist",
+        dealership: "Autify Motors LLC (Miami, FL)",
+        avatarInitials: "JD",
+      },
+      true,
+    );
   };
 
   return (
     <div className="min-h-screen bg-[#0B0C0E] text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 relative selection:bg-emerald-500/20 selection:text-emerald-400">
-      
       {/* Background ambient lighting (subtle industrial glow) */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Container Card - Strict Anti-IA Rule: Unified surface, NO border-t-4 or border-l-4 */}
       <div className="relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#141619] shadow-2xl p-6 sm:p-8 backdrop-blur-xl">
-        
         {/* Brand Header */}
         <div className="text-center mb-7">
           <div className="flex justify-center mb-3">
@@ -78,7 +92,6 @@ export const Login = ({ onLogin }) => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          
           {/* Email / User */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
@@ -107,7 +120,11 @@ export const Login = ({ onLogin }) => {
               </label>
               <button
                 type="button"
-                onClick={() => alert('Para este demo usa la contraseña por defecto: autify2026')}
+                onClick={() =>
+                  alert(
+                    "Para este demo usa la contraseña por defecto: autify2026",
+                  )
+                }
                 className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
               >
                 ¿Olvidaste tu PIN?
@@ -118,7 +135,7 @@ export const Login = ({ onLogin }) => {
                 <Lock className="w-4 h-4" />
               </div>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -129,9 +146,13 @@ export const Login = ({ onLogin }) => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors"
-                title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -169,7 +190,6 @@ export const Login = ({ onLogin }) => {
               </>
             )}
           </button>
-
         </form>
 
         {/* 1-Click Quick Demo Box */}
@@ -177,15 +197,20 @@ export const Login = ({ onLogin }) => {
           <div className="rounded-xl bg-[#1E2025] border border-white/5 p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Acceso Rápido de Prueba (Demo)
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Acceso
+                Rápido de Prueba (Demo)
               </span>
               <span className="text-[10px] font-mono text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
                 1-Click
               </span>
             </div>
-            
+
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Ingresa instantáneamente como <span className="text-slate-200 font-semibold font-mono">Fleet Manager</span> con datos precargados.
+              Ingresa instantáneamente como{" "}
+              <span className="text-slate-200 font-semibold font-mono">
+                Fleet Manager
+              </span>{" "}
+              con datos precargados.
             </p>
 
             <button
@@ -204,14 +229,12 @@ export const Login = ({ onLogin }) => {
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
           <span>Conexión cifrada • Copart/IAAI & NHTSA Gateway</span>
         </div>
-
       </div>
 
       {/* App Version Info */}
       <div className="mt-6 text-center text-xs text-slate-500 font-mono">
         Autify Flip OS v1.0 • PWA Mobile & Tablet First
       </div>
-
     </div>
   );
 };

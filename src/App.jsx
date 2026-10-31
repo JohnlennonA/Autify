@@ -337,8 +337,8 @@ export default function App() {
         {/* Inventory Cards Grid */}
         {filteredVehicles.length === 0 ? (
           <div className="rounded-xl border border-white/[0.07] bg-[#141619] p-12 text-center flex flex-col items-center justify-center space-y-4">
-            <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-slate-400">
-              <Car className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center p-2.5">
+              <img src="/images/autify-icon.png" alt="Autify" className="w-full h-full object-contain opacity-50" />
             </div>
             <div className="space-y-1">
               <h3 className="text-base font-bold text-white">No se encontraron vehículos</h3>
