@@ -14,8 +14,8 @@ export const Navbar = ({
   onLogout
 }) => {
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#0B0C0E]/90 backdrop-blur-md border-b border-white/[0.07]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+    <header className="sticky top-0 z-40 w-full bg-[#0B0C0E]/95 backdrop-blur-md border-b border-white/[0.07] pt-[max(env(safe-area-inset-top,0px),8px)] pwa-header-safe transition-all">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
         {/* Main top row: Brand + Search + User + Action */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           

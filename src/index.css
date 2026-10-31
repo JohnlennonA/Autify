@@ -11,7 +11,21 @@
   body {
     background-color: #0B0C0E;
     color: #F3F4F6;
-    overflow-x: hidden;
+    overflow-x: clip;
+    min-height: 100vh;
+  }
+}
+
+/* PWA Standalone & Safe Area styling for Desktop and Mobile */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+/* Safe padding in Desktop / Mobile PWA standalone mode */
+@media all and (display-mode: standalone) {
+  .pwa-header-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 14px) !important;
   }
 }
 
