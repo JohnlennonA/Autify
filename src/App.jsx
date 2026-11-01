@@ -27,20 +27,25 @@ export default function App() {
   const [authTransition, setAuthTransition] = useState(null); // 'login' | 'logout' | null
   const [pendingUserData, setPendingUserData] = useState(null);
 
-  // Local storage state initialization for vehicles (normalizes categories and ensures rental demo vehicle)
+  // Local storage state initialization for vehicles (normalizes categories, syncs mockData photos, and ensures rental demo vehicle)
   const [vehicles, setVehicles] = useState(() => {
     try {
       const saved = localStorage.getItem('autify_vehicles');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Normalize expenses to Spanish
-        const normalized = parsed.map((v) => ({
-          ...v,
-          expenses: (v.expenses || []).map((e) => ({
-            ...e,
-            category: normalizeExpenseCategory(e.category)
-          }))
-        }));
+        // Normalize expenses to Spanish and sync updated photos from mockData.js
+        const normalized = parsed.map((v) => {
+          const mockMatch = initialVehicles.find((m) => m.id === v.id);
+          return {
+            ...v,
+            // If it's a seed vehicle from mockData, sync its photos array with the code
+            photos: mockMatch?.photos?.length ? mockMatch.photos : (v.photos || []),
+            expenses: (v.expenses || []).map((e) => ({
+              ...e,
+              category: normalizeExpenseCategory(e.category)
+            }))
+          };
+        });
 
         // Check if demo rented car exists, if not append it
         const hasRented = normalized.some((v) => v.status === 'rented' || v.id === 'veh-005');

@@ -16,9 +16,10 @@ export const initialVehicles = [
     soldPrice: null,
     purchaseDate: "2026-10-05",
     photos: [
-      "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80"
+      "https://www.carpro.com/hs-fs/hubfs/2024-Ford-Mustang-GT-Premium-front-end.carpro.jpg%20(1).jpg?width=750&height=563&name=2024-Ford-Mustang-GT-Premium-front-end.carpro.jpg%20(1).jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2024-Ford-Mustang-GT-Premium-tail-end-wing.carpro.jpg%20(1).jpg?width=750&height=563&name=2024-Ford-Mustang-GT-Premium-tail-end-wing.carpro.jpg%20(1).jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2024-Ford-Mustang-GT-Premium-cabin-hero-1.jpg?width=750&height=563&name=2024-Ford-Mustang-GT-Premium-cabin-hero-1.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2024-Ford-Mustang-GT-Premium-track-use-only-carpro.jpg?width=750&height=563&name=2024-Ford-Mustang-GT-Premium-track-use-only-carpro.jpg"
     ],
     expenses: [
       {
@@ -66,9 +67,9 @@ export const initialVehicles = [
     soldPrice: null,
     purchaseDate: "2026-09-18",
     photos: [
-      "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80"
+      "https://www.carpro.com/hubfs/car-review-blog/2021-toyota-camry-se-nightshade-profile-2.-min.jpg",
+      "https://www.carpro.com/hubfs/car-review-blog/2021-toyota-camry-se-nightshade-cabin2.-min.jpg",
+      "https://www.carpro.com/hubfs/car-review-blog/2021-toyota-camry-se-nightshade-frontseats1.-min.jpg"
     ],
     expenses: [
       {
@@ -116,8 +117,11 @@ export const initialVehicles = [
     soldPrice: 21200,
     purchaseDate: "2026-08-12",
     photos: [
-      "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80"
+      "https://www.carpro.com/hs-fs/hubfs/2025-honda-civic-si-exterior-2-carpro-.jpg?width=750&height=563&name=2025-honda-civic-si-exterior-2-carpro-.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2025-honda-civic-si-exterior-spoiler-carpro-.jpg.jpg?width=750&height=563&name=2025-honda-civic-si-exterior-spoiler-carpro-.jpg.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2025-honda-civic-si-exterior-cabin-hero-carpro-.jpg?width=750&height=563&name=2025-honda-civic-si-exterior-cabin-hero-carpro-.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2025-honda-civic-si-2nd-rowcarpro-.jpg.jpg?width=750&height=563&name=2025-honda-civic-si-2nd-rowcarpro-.jpg.jpg"
+
     ],
     expenses: [
       {
@@ -210,8 +214,15 @@ export const initialVehicles = [
     soldPrice: null,
     purchaseDate: "2026-09-01",
     photos: [
-      "https://images.unsplash.com/photo-1581540222194-0def2dda95b8?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80"
+      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-feature-carprousa-1404x1112.jpg?width=1020&name=2022-toyota-rav-4-prime-feature-carprousa-1404x1112.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-sun-1404-x-1112-jpg-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-sun-1404-x-1112-jpg-1404x1112.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-wheels-red-carprousa-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-wheels-red-carprousa-1404x1112.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2022-toytoa-rav-4-rear-seat-carprousa-1404x1112.jpg?width=354&name=2022-toytoa-rav-4-rear-seat-carprousa-1404x1112.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-cargo-carprousa-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-cargo-carprousa-1404x1112.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-door-sill-png-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-door-sill-png-1404x1112.jpg",
+
+
+
     ],
     expenses: [
       {
