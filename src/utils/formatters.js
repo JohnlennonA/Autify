@@ -10,7 +10,8 @@ export const normalizeExpenseCategory = (cat) => {
     'Mechanical': 'Mecánica / Motor',
     'Body & Paint': 'Pintura y Carrocería',
     'Detailing': 'Detallado y Limpieza',
-    'DMV / Fees': 'Trámites / Subasta / DMV',
+    'DMV / Fees': 'Gastos Administrativos y DMV',
+    'Trámites / Subasta / DMV': 'Gastos Administrativos y DMV',
     'Transport': 'Transporte y Grúa',
     'Other': 'Otros Gastos'
   };
@@ -125,6 +126,7 @@ export const calculateFleetKPIs = (vehicles = []) => {
   let realizedProfit = 0;
   let totalRentalIncome = 0;
 
+  let availableCount = 0;
   let inRepairCount = 0;
   let forSaleCount = 0;
   let rentedCount = 0;
@@ -143,6 +145,7 @@ export const calculateFleetKPIs = (vehicles = []) => {
       projectedProfit += fin.netProfit;
       activeCount += 1;
 
+      if (v.status === 'available') availableCount += 1;
       if (v.status === 'in_repair') inRepairCount += 1;
       if (v.status === 'for_sale') forSaleCount += 1;
       if (v.status === 'rented') {
@@ -159,6 +162,7 @@ export const calculateFleetKPIs = (vehicles = []) => {
     realizedProfit,
     totalRentalIncome,
     activeCount,
+    availableCount,
     inRepairCount,
     forSaleCount,
     rentedCount,

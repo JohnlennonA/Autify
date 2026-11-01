@@ -319,9 +319,10 @@ export const EditVehicleModal = ({
                 className="w-full text-xs bg-[#1E2025] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-blue-500"
               >
                 {[
-                  { value: 'in_repair', label: 'Taller / Reparación' },
-                  { value: 'for_sale', label: 'En Venta / Listo' },
+                  { value: 'available', label: 'Disponible (Stock en Patio)' },
+                  { value: 'for_sale', label: 'En Venta / Publicado' },
                   { value: 'rented', label: 'En Renta Activa' },
+                  { value: 'in_repair', label: 'Taller / Reparación' },
                   { value: 'sold', label: 'Vendido / Liquidado' }
                 ].map((st) => {
                   const check = validateStatusTransition(vehicle, st.value);

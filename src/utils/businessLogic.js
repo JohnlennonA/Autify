@@ -2,23 +2,25 @@
 // Reglas de negocio para operaciones automotrices, rentas, taller y liquidación
 
 export const VEHICLE_STATUSES_KEYS = {
-  IN_REPAIR: 'in_repair',
+  AVAILABLE: 'available',
   FOR_SALE: 'for_sale',
   RENTED: 'rented',
+  IN_REPAIR: 'in_repair',
   SOLD: 'sold'
 };
 
 export const STATUS_LABELS = {
-  in_repair: 'En Reparación / Taller',
-  for_sale: 'En Venta / Listo',
+  available: 'Disponible (Stock en Patio)',
+  for_sale: 'En Venta / Publicado',
   rented: 'En Renta Activa',
+  in_repair: 'En Reparación / Taller',
   sold: 'Vendido / Liquidado'
 };
 
 /**
  * Valida si una transición de estado está permitida bajo las reglas del negocio automotriz.
  * @param {Object} vehicle - El vehículo a modificar
- * @param {string} nextStatus - El nuevo estado solicitado ('in_repair' | 'for_sale' | 'rented' | 'sold')
+ * @param {string} nextStatus - El nuevo estado solicitado ('available' | 'for_sale' | 'rented' | 'in_repair' | 'sold')
  * @returns {Object} { allowed: boolean, reason?: string, warning?: boolean, code?: string }
  */
 export const validateStatusTransition = (vehicle, nextStatus) => {
@@ -35,12 +37,12 @@ export const validateStatusTransition = (vehicle, nextStatus) => {
     return {
       allowed: false,
       code: 'ERR_SOLD_LOCKED',
-      reason: 'El vehículo ya fue VENDIDO y liquidado comercialmente. No es posible rentarlo, ponerlo en venta ni pasarlo a taller sin antes anular o reabrir la venta de forma explícita.'
+      reason: 'El vehículo ya fue VENDIDO y liquidado comercialmente. No es posible cambiarlo de estado sin antes anular o reabrir la venta de forma explícita.'
     };
   }
 
   // 2. REGLA DE RENTA: UN AUTO EN RENTA TIENE UN CLIENTE ASIGNADO
-  // No puede venderse directamente ni pasarse a venta sin registrar el retorno de la unidad
+  // No puede venderse directamente ni pasarse a venta/disponible sin registrar el retorno de la unidad
   if (current === 'rented') {
     if (nextStatus === 'sold') {
       return {
@@ -49,11 +51,11 @@ export const validateStatusTransition = (vehicle, nextStatus) => {
         reason: 'El vehículo tiene un contrato de renta activo con un cliente. Debe registrar el retorno de la unidad y finalizar el contrato antes de poder venderlo.'
       };
     }
-    if (nextStatus === 'for_sale') {
+    if (nextStatus === 'for_sale' || nextStatus === 'available') {
       return {
         allowed: false,
-        code: 'ERR_RENTED_CANNOT_FOR_SALE',
-        reason: 'La unidad se encuentra en posesión del arrendatario. Debe utilizar la acción "Finalizar Renta / Inspección" para registrar el retorno de la unidad al inventario.'
+        code: 'ERR_RENTED_CANNOT_RETURN_DIRECT',
+        reason: 'La unidad se encuentra en posesión del arrendatario. Debe utilizar la acción "Finalizar Renta e Inspección" para registrar el retorno de la unidad al inventario.'
       };
     }
     if (nextStatus === 'in_repair') {

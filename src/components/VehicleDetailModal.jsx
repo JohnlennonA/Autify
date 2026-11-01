@@ -116,6 +116,19 @@ export const VehicleDetailModal = ({
   const [expenseAmount, setExpenseAmount] = useState('');
   const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
   const [expenseSearch, setExpenseSearch] = useState('');
+  const [expenseReceiptUrl, setExpenseReceiptUrl] = useState('');
+  const [viewingReceipt, setViewingReceipt] = useState(null);
+  const receiptFileInputRef = useRef(null);
+
+  const handleReceiptFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setExpenseReceiptUrl(event.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Sale price state
   const [salePriceInput, setSalePriceInput] = useState(
@@ -185,11 +198,14 @@ export const VehicleDetailModal = ({
       category: expenseCategory,
       description: expenseDesc.trim(),
       amount: amountNum,
-      date: expenseDate || new Date().toISOString().split('T')[0]
+      date: expenseDate || new Date().toISOString().split('T')[0],
+      receiptUrl: expenseReceiptUrl.trim() || null
     });
 
     setExpenseDesc('');
     setExpenseAmount('');
+    setExpenseReceiptUrl('');
+    if (receiptFileInputRef.current) receiptFileInputRef.current.value = '';
   };
 
   const handlePriceBlur = () => {
@@ -202,6 +218,8 @@ export const VehicleDetailModal = ({
   // Status Badge styles
   const getStatusColor = (status) => {
     switch (status) {
+      case 'available':
+        return 'text-teal-300 bg-teal-500/10 border-teal-500/25';
       case 'in_repair':
         return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
       case 'for_sale':
@@ -501,11 +519,12 @@ export const VehicleDetailModal = ({
             {vehicle.status === 'rented' ? 'Contrato Activo' : vehicle.status === 'sold' ? 'Operación Cerrada' : 'Inventario Activo'}
           </span>
         </div>
-        <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-[#1E2025] border border-white/5">
+        <div className="grid grid-cols-5 gap-1 p-1 rounded-xl bg-[#1E2025] border border-white/5">
           {[
-            { key: 'in_repair', label: 'Taller', activeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-glow-amber' },
+            { key: 'available', label: 'Disponible', activeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/40 shadow-glow-teal' },
             { key: 'for_sale', label: 'En Venta', activeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-glow-emerald' },
             { key: 'rented', label: 'En Renta', activeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-glow-purple' },
+            { key: 'in_repair', label: 'En Taller', activeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-glow-amber' },
             { key: 'sold', label: 'Vendido', activeColor: 'bg-blue-600/20 text-blue-300 border-blue-500/40 shadow-glow-electric' }
           ].map((st) => {
             const isActive = vehicle.status === st.key;
@@ -1117,17 +1136,17 @@ export const VehicleDetailModal = ({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-amber-400" />
-            Bitácora de Gastos y Taller
+            <DollarSign className="w-4 h-4 text-emerald-400" />
+            Bitácora de Costos e Inversión
           </h3>
           <p className="text-xs text-slate-400">
-            {vehicle.expenses?.length || 0} registros en español contabilizados
+            {vehicle.expenses?.length || 0} registros contables (DMV, taller, transporte...)
           </p>
         </div>
 
         <div className="text-right">
           <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
-            Total Gastos
+            Total Invertido
           </span>
           <span className="font-mono text-base font-bold text-amber-400">
             {formatCurrency(fin.totalExpenses)}
@@ -1150,12 +1169,12 @@ export const VehicleDetailModal = ({
         }`}
       >
         <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-          <Plus className="w-3.5 h-3.5 text-emerald-400" /> Registrar Nuevo Gasto
+          <Plus className="w-3.5 h-3.5 text-emerald-400" /> Registrar Nuevo Gasto / Inversión
         </span>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] text-slate-400 uppercase mb-1">Categoría (En Español) *</label>
+            <label className="block text-[10px] text-slate-400 uppercase mb-1">Categoría *</label>
             <select
               disabled={vehicle.status === 'sold'}
               value={expenseCategory}
@@ -1196,7 +1215,7 @@ export const VehicleDetailModal = ({
               disabled={vehicle.status === 'sold'}
               type="text"
               required
-              placeholder="Ej. Bumper delantero OEM, pintura bicapa o alineación..."
+              placeholder="Ej. Título limpio DMV, grúa subasta, parachoques..."
               value={expenseDesc}
               onChange={(e) => setExpenseDesc(e.target.value)}
               className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:cursor-not-allowed"
@@ -1213,6 +1232,49 @@ export const VehicleDetailModal = ({
               className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-slate-100 focus:outline-none focus:border-amber-500 font-mono disabled:cursor-not-allowed"
             />
           </div>
+        </div>
+
+        {/* Receipt / Invoice attachment input */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1.5 border-t border-white/5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="file"
+              ref={receiptFileInputRef}
+              onChange={handleReceiptFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+            <button
+              type="button"
+              disabled={vehicle.status === 'sold'}
+              onClick={() => receiptFileInputRef.current?.click()}
+              className="px-2.5 py-1.5 rounded-lg bg-[#141619] hover:bg-[#20232A] text-slate-300 hover:text-white text-[11px] font-medium flex items-center gap-1.5 border border-white/10 transition-all cursor-pointer disabled:opacity-40"
+            >
+              <Paperclip className="w-3.5 h-3.5 text-blue-400" />
+              <span>{expenseReceiptUrl ? 'Cambiar Factura / Recibo' : 'Adjuntar Recibo / Factura'}</span>
+            </button>
+
+            {expenseReceiptUrl && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px]">
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span>Comprobante listo</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExpenseReceiptUrl('');
+                    if (receiptFileInputRef.current) receiptFileInputRef.current.value = '';
+                  }}
+                  className="ml-1 text-slate-400 hover:text-rose-400 cursor-pointer"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <span className="text-[10px] text-slate-500">
+            Foto o escaneo de factura
+          </span>
         </div>
 
         <button
@@ -1273,13 +1335,30 @@ export const VehicleDetailModal = ({
               className="rounded-xl bg-[#1E2025] border border-white/5 p-3 flex items-center justify-between gap-3 group hover:border-white/10 transition-colors"
             >
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
                     {exp.category}
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">
                     {exp.date}
                   </span>
+                  {exp.receiptUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setViewingReceipt({
+                        url: exp.receiptUrl,
+                        description: exp.description,
+                        amount: exp.amount,
+                        date: exp.date,
+                        category: exp.category
+                      })}
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all flex items-center gap-1 cursor-pointer"
+                      title="Ver factura o comprobante"
+                    >
+                      <Paperclip className="w-2.5 h-2.5" />
+                      <span>Ver Recibo</span>
+                    </button>
+                  )}
                 </div>
                 <p className="text-xs text-slate-200 truncate font-medium">
                   {exp.description}
@@ -1409,14 +1488,35 @@ export const VehicleDetailModal = ({
 
       {/* Action CTA */}
       <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+        {vehicle.status === 'available' && (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => handleStatusChange('for_sale')}
+              className="w-full py-3 px-4 rounded-xl bg-emerald-500 text-slate-950 font-bold text-sm hover:bg-emerald-400 shadow-glow-emerald active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Tag className="w-4 h-4" />
+              <span>Publicar en Venta</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStatusChange('rented')}
+              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-glow-purple active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Key className="w-4 h-4" />
+              <span>Iniciar Contrato de Renta</span>
+            </button>
+          </div>
+        )}
+
         {vehicle.status === 'in_repair' && (
           <button
             type="button"
-            onClick={() => handleStatusChange('for_sale')}
-            className="w-full py-3 px-4 rounded-xl bg-emerald-500 text-slate-950 font-bold text-sm hover:bg-emerald-400 shadow-glow-emerald active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            onClick={() => handleStatusChange('available')}
+            className="w-full py-3 px-4 rounded-xl bg-teal-500 text-slate-950 font-bold text-sm hover:bg-teal-400 shadow-glow-teal active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Tag className="w-4 h-4" />
-            <span>Publicar en Venta</span>
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Completar Reparación (A Patio Disponible)</span>
           </button>
         )}
 
@@ -1571,8 +1671,8 @@ export const VehicleDetailModal = ({
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <Wrench className="w-3.5 h-3.5" />
-                <span>Bitácora de Taller & Gastos ({formatCurrency(fin.totalExpenses)})</span>
+                <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Bitácora de Costos e Inversión ({formatCurrency(fin.totalExpenses)})</span>
               </button>
 
               <button
@@ -1801,6 +1901,60 @@ export const VehicleDetailModal = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Receipt Preview Lightbox Modal */}
+      {viewingReceipt && (
+        <div className="fixed inset-0 z-[85] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#141619] border border-white/10 rounded-2xl max-w-2xl w-full p-5 shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Paperclip className="w-4 h-4 text-blue-400" />
+                  Comprobante: {viewingReceipt.description}
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                  {viewingReceipt.category} • {formatCurrency(viewingReceipt.amount)} • {viewingReceipt.date}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingReceipt(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto rounded-xl bg-black/40 border border-white/5 p-2 flex items-center justify-center min-h-[300px]">
+              <img
+                src={viewingReceipt.url}
+                alt="Comprobante de gasto"
+                className="max-h-[65vh] w-auto max-w-full object-contain rounded-lg shadow-lg"
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/10">
+              <a
+                href={viewingReceipt.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Abrir imagen en pestaña nueva</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setViewingReceipt(null)}
+                className="px-4 py-2 rounded-xl bg-[#1E2025] hover:bg-[#2A2E35] text-white text-xs font-semibold cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

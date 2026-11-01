@@ -17,6 +17,11 @@ export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
   // Status Badge styles
   const getStatusBadge = () => {
     switch (vehicle.status) {
+      case 'available':
+        return {
+          text: 'Disponible',
+          className: 'bg-teal-500/10 text-teal-300 border-teal-500/25'
+        };
       case 'in_repair':
         return {
           text: 'En Reparación',

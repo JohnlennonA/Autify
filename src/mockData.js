@@ -208,7 +208,7 @@ export const initialVehicles = [
     color: "Magnetic Gray Metallic",
     mileage: 31200,
     titleStatus: "Clean",
-    status: "rented",
+    status: "available",
     purchasePrice: 21800,
     estimatedSalePrice: 29500,
     soldPrice: null,
@@ -219,55 +219,34 @@ export const initialVehicles = [
       "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-wheels-red-carprousa-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-wheels-red-carprousa-1404x1112.jpg",
       "https://www.carpro.com/hs-fs/hubfs/2022-toytoa-rav-4-rear-seat-carprousa-1404x1112.jpg?width=354&name=2022-toytoa-rav-4-rear-seat-carprousa-1404x1112.jpg",
       "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-cargo-carprousa-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-cargo-carprousa-1404x1112.jpg",
-      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-door-sill-png-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-door-sill-png-1404x1112.jpg",
-
-
-
+      "https://www.carpro.com/hs-fs/hubfs/2022-toyota-rav-4-prime-door-sill-png-1404x1112.jpg?width=354&name=2022-toyota-rav-4-prime-door-sill-png-1404x1112.jpg"
     ],
     expenses: [
       {
         id: "exp-501",
         category: "Mecánica / Motor",
-        description: "Inspección multipunto para renta, frenos y cambio sintético 0W-16",
+        description: "Inspección multipunto, frenos nuevos y cambio sintético 0W-16",
         amount: 420,
-        date: "2026-09-05"
+        date: "2026-09-05",
+        receiptUrl: "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80"
       },
       {
         id: "exp-502",
-        category: "Detallado y Limpieza",
-        description: "Desinfección profunda de interiores y protección de alfombras para renta",
-        amount: 180,
-        date: "2026-09-08"
+        category: "Gastos Administrativos y DMV",
+        description: "Gestión de título limpio DMV Florida, registro y sellos notariales",
+        amount: 320,
+        date: "2026-09-07",
+        receiptUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80"
       },
       {
         id: "exp-503",
-        category: "Trámites / Subasta / DMV",
-        description: "Póliza comercial de seguro de alquiler y registro de flota",
-        amount: 650,
-        date: "2026-09-10"
+        category: "Detallado y Limpieza",
+        description: "Desinfección profunda de interiores y tratamiento cerámico de carrocería",
+        amount: 250,
+        date: "2026-09-10",
+        receiptUrl: "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=800&q=80"
       }
-    ],
-    rental: {
-      customerName: "Carlos E. Mendoza",
-      customerPhone: "+1 (786) 554-9218",
-      customerEmail: "carlos.mendoza@gmail.com",
-      customerDoc: "DL Florida #M532-881-89-104",
-      startDate: "2026-10-01",
-      endDate: "2026-11-15",
-      billingCycle: "semanal", // 'diario' | 'semanal' | 'mensual'
-      rate: 350, // $350 por semana
-      securityDeposit: 500, // $500 de depósito en garantía
-      depositReturned: false,
-      totalReceived: 1400, // 4 semanas cobradas
-      odometerStart: 29800,
-      notes: "Cliente recurrente de Uber Black / Turo. Pago puntual todos los lunes.",
-      payments: [
-        { id: "pay-1", date: "2026-10-01", amount: 350, method: "Zelle", concept: "Semana 1 de Renta" },
-        { id: "pay-2", date: "2026-10-08", amount: 350, method: "Zelle", concept: "Semana 2 de Renta" },
-        { id: "pay-3", date: "2026-10-15", amount: 350, method: "Zelle", concept: "Semana 3 de Renta" },
-        { id: "pay-4", date: "2026-10-22", amount: 350, method: "Zelle", concept: "Semana 4 de Renta" }
-      ]
-    }
+    ]
   },
 
   {
@@ -338,12 +317,14 @@ export const initialVehicles = [
 ];
 
 export const EXPENSE_CATEGORIES = [
-  'Repuestos y Piezas',
+  'Gastos Administrativos y DMV',
+  'Transporte y Grúa',
   'Mecánica / Motor',
   'Pintura y Carrocería',
+  'Repuestos y Piezas',
   'Detallado y Limpieza',
-  'Trámites / Subasta / DMV',
-  'Transporte y Grúa',
+  'Seguros, GPS y Peajes',
+  'Marketing y Publicidad',
   'Otros Gastos'
 ];
 
@@ -355,8 +336,9 @@ export const TITLE_STATUSES = [
 
 export const VEHICLE_STATUSES = [
   { value: 'all', label: 'Todos' },
-  { value: 'in_repair', label: 'En Reparación' },
+  { value: 'available', label: 'Disponibles' },
   { value: 'for_sale', label: 'En Venta' },
   { value: 'rented', label: 'En Renta' },
+  { value: 'in_repair', label: 'En Taller' },
   { value: 'sold', label: 'Vendidos' }
 ];

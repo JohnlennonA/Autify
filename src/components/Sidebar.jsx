@@ -23,6 +23,7 @@ export const Sidebar = ({
   statusCounts = {},
   totalVehicles = 0,
   onOpenNewVehicleModal,
+  onOpenFleetManager,
   currentUser,
   onLogout,
   onSelectKpi,
@@ -292,16 +293,20 @@ export const Sidebar = ({
 
               <button
                 onClick={() => {
-                  setSelectedStatus('all');
+                  if (onOpenFleetManager) onOpenFleetManager();
                   if (setIsMobileOpen) setIsMobileOpen(false);
                 }}
-                className="w-full px-3 py-2 rounded-xl text-xs text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] flex items-center justify-between transition-all cursor-pointer group"
+                className="w-full px-3 py-2 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-white/[0.06] flex items-center justify-between transition-all cursor-pointer group border border-white/5 bg-[#141619]"
               >
                 <div className="flex items-center gap-2.5">
-                  <Car className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
-                  <span>Gestionar Flota</span>
+                  <div className="w-5 h-5 rounded-md bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-semibold text-slate-200 group-hover:text-white">Gestionar Flota</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400 transition-colors" />
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 font-bold">
+                  Matriz
+                </span>
               </button>
             </div>
           </div>
@@ -331,6 +336,26 @@ export const Sidebar = ({
                 </div>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-white/5 text-slate-300 font-semibold">
                   {totalVehicles}
+                </span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setSelectedStatus('available');
+                  if (setIsMobileOpen) setIsMobileOpen(false);
+                }}
+                className={`w-full px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between transition-all cursor-pointer ${
+                  selectedStatus === 'available'
+                    ? 'bg-teal-500/15 text-teal-300 font-bold border border-teal-500/25 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                  <span>Disponibles (Patio)</span>
+                </div>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-teal-500/15 text-teal-300 font-bold">
+                  {statusCounts['available'] || 0}
                 </span>
               </button>
 

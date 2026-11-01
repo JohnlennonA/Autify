@@ -15,7 +15,7 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
     color: '',
     mileage: '',
     titleStatus: 'Clean',
-    status: 'in_repair',
+    status: 'available',
     purchasePrice: '',
     estimatedSalePrice: '',
     purchaseDate: new Date().toISOString().split('T')[0],
@@ -270,7 +270,8 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full text-xs bg-[#1E2025] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-blue-500"
               >
-                <option value="in_repair">Taller</option>
+                <option value="available">Disponible (Patio)</option>
+                <option value="in_repair">Taller / Reparación</option>
                 <option value="for_sale">En Venta</option>
                 <option value="rented">En Renta</option>
               </select>

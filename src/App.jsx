@@ -8,6 +8,7 @@ import { KpiDetailModal } from './components/KpiDetailModal';
 import { VehicleCard } from './components/VehicleCard';
 import { VehicleDetailModal } from './components/VehicleDetailModal';
 import { NewVehicleModal } from './components/NewVehicleModal';
+import { FleetManagerModal } from './components/FleetManagerModal';
 import { Login } from './components/Login';
 import { AuthTransitionLoader } from './components/AuthTransitionLoader';
 import { Toast } from './components/Toast';
@@ -74,6 +75,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'profit' | 'price'
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [isFleetManagerOpen, setIsFleetManagerOpen] = useState(false);
   const [activeKpiModal, setActiveKpiModal] = useState(null); // 'active-capital' | 'repair-costs' | etc.
   const [toast, setToast] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -133,13 +135,14 @@ export default function App() {
     setAuthTransition(null);
   };
 
-  // Status counts for badge pills (including rented)
+  // Status counts for badge pills (including available & rented)
   const statusCounts = useMemo(() => {
     const counts = {
       all: vehicles.length,
-      in_repair: 0,
+      available: 0,
       for_sale: 0,
       rented: 0,
+      in_repair: 0,
       sold: 0
     };
     vehicles.forEach((v) => {
@@ -241,7 +244,9 @@ export default function App() {
       })
     );
     const label =
-      newStatus === 'in_repair'
+      newStatus === 'available'
+        ? 'Disponible (Patio)'
+        : newStatus === 'in_repair'
         ? 'En Reparación'
         : newStatus === 'for_sale'
         ? 'En Venta'
@@ -463,6 +468,7 @@ export default function App() {
         statusCounts={statusCounts}
         totalVehicles={vehicles.length}
         onOpenNewVehicleModal={() => setIsNewModalOpen(true)}
+        onOpenFleetManager={() => setIsFleetManagerOpen(true)}
         currentUser={currentUser}
         onLogout={handleLogout}
         onSelectKpi={(kpiId) => setActiveKpiModal(kpiId)}
@@ -671,6 +677,24 @@ export default function App() {
         onClose={() => setIsNewModalOpen(false)}
         onAddVehicle={handleAddVehicle}
       />
+
+      {/* Fleet Command Center / Matriz de Flota Modal */}
+      {isFleetManagerOpen && (
+        <FleetManagerModal
+          isOpen={isFleetManagerOpen}
+          onClose={() => setIsFleetManagerOpen(false)}
+          vehicles={vehicles}
+          onUpdateVehicleStatus={handleUpdateVehicleStatus}
+          onSelectVehicle={(v) => {
+            setSelectedVehicleId(v.id);
+            setIsFleetManagerOpen(false);
+          }}
+          onOpenNewVehicleModal={() => {
+            setIsFleetManagerOpen(false);
+            setIsNewModalOpen(true);
+          }}
+        />
+      )}
 
       {/* Micro-interaction Toast */}
       <Toast toast={toast} onClose={() => setToast(null)} />
