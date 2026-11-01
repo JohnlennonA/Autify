@@ -1434,21 +1434,22 @@ export const VehicleDetailModal = ({
         {vehicle.status === 'rented' && (
           <button
             type="button"
-            onClick={handleEndRental}
+            onClick={handleOpenReturnModal}
             className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-glow-purple active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Finalizar Renta y Regresar a Inventario</span>
+            <span>Finalizar Renta e Inspección</span>
           </button>
         )}
 
         {vehicle.status === 'sold' && (
           <button
             type="button"
-            onClick={() => handleStatusChange('for_sale')}
-            className="w-full py-3 px-4 rounded-xl bg-[#1E2025] border border-white/10 text-slate-200 font-semibold text-sm hover:bg-white/5 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            onClick={() => setReopenConfirmOpen(true)}
+            className="w-full py-3 px-4 rounded-xl bg-[#1E2025] border border-blue-500/30 text-blue-300 font-semibold text-sm hover:bg-blue-500/10 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Reabrir a "En Venta"</span>
+            <RotateCcw className="w-4 h-4" />
+            <span>Reversar Venta y Reactivar</span>
           </button>
         )}
       </div>

@@ -275,7 +275,7 @@ export const initialVehicles = [
     vin: "WBA31AG0XLG123456",
     year: 2024,
     make: "BMW",
-    model: "BMW X6 M60i",
+    model: "X6 M60i",
     color: "Magnetic Greem Metallic",
     mileage: 31200,
     titleStatus: "Clean",
@@ -327,7 +327,7 @@ export const initialVehicles = [
       odometerStart: 49800,
       notes: "Cliente recurrente de Uber Black / Turo. Pago puntual todos los lunes.",
       payments: [
-        { id: "pay-1", date: "2026-10-01", amount: 1000, method: "Efectivo" , concept: "Deposito"},
+        { id: "pay-1", date: "2026-10-01", amount: 1000, method: "Efectivo", concept: "Deposito" },
         { id: "pay-2", date: "2026-10-01", amount: 600, method: "Zelle", concept: "Semana 1 de Renta" },
         { id: "pay-3", date: "2026-10-08", amount: 600, method: "Zelle", concept: "Semana 2 de Renta" },
         { id: "pay-4", date: "2026-10-15", amount: 600, method: "Zelle", concept: "Semana 3 de Renta" },
