@@ -12,6 +12,13 @@ import { Login } from './components/Login';
 import { AuthTransitionLoader } from './components/AuthTransitionLoader';
 import { Toast } from './components/Toast';
 import { Car, SlidersHorizontal, ArrowUpDown, Plus, Sparkles } from 'lucide-react';
+import {
+  validateStatusTransition,
+  canRentVehicle,
+  canDeleteVehicle,
+  canAddExpense,
+  validateReturnInspection
+} from './utils/businessLogic';
 
 export default function App() {
   // Authentication State
@@ -209,6 +216,18 @@ export default function App() {
   };
 
   const handleUpdateVehicleStatus = (vehicleId, newStatus) => {
+    const target = vehicles.find((v) => v.id === vehicleId);
+    if (target) {
+      const validation = validateStatusTransition(target, newStatus);
+      if (!validation.allowed) {
+        showToast(validation.reason, 'error');
+        return false;
+      }
+      if (validation.warning) {
+        showToast(validation.reason, 'info');
+      }
+    }
+
     setVehicles((prev) =>
       prev.map((v) => {
         if (v.id === vehicleId) {
@@ -230,9 +249,31 @@ export default function App() {
         ? 'En Renta'
         : 'Vendido';
     showToast(`Estatus actualizado a: ${label}`);
+    return true;
+  };
+
+  const handleReopenSale = (vehicleId) => {
+    setVehicles((prev) =>
+      prev.map((v) => {
+        if (v.id === vehicleId) {
+          return {
+            ...v,
+            status: 'for_sale',
+            soldPrice: null
+          };
+        }
+        return v;
+      })
+    );
+    showToast('Venta anulada. Vehículo reincorporado a inventario en venta.', 'info');
   };
 
   const handleAddExpense = (vehicleId, newExpense) => {
+    const target = vehicles.find((v) => v.id === vehicleId);
+    if (target && target.status === 'sold') {
+      showToast('Aviso: El gasto se registrará sobre un vehículo ya liquidado.', 'info');
+    }
+
     setVehicles((prev) =>
       prev.map((v) => {
         if (v.id === vehicleId) {
@@ -278,6 +319,15 @@ export default function App() {
 
   // Rental Handlers
   const handleUpdateRental = (vehicleId, rentalData) => {
+    const target = vehicles.find((v) => v.id === vehicleId);
+    if (target) {
+      const rentCheck = canRentVehicle(target);
+      if (!rentCheck.allowed) {
+        showToast(rentCheck.reason, 'error');
+        return false;
+      }
+    }
+
     setVehicles((prev) =>
       prev.map((v) => {
         if (v.id === vehicleId) {
@@ -291,6 +341,7 @@ export default function App() {
       })
     );
     showToast('Contrato de renta actualizado exitosamente');
+    return true;
   };
 
   const handleAddRentalPayment = (vehicleId, payment) => {
@@ -317,19 +368,34 @@ export default function App() {
     showToast(`Cobro de $${payment.amount} registrado exitosamente`);
   };
 
-  const handleTerminateRental = (vehicleId, returnStatus = 'for_sale') => {
+  const handleTerminateRental = (vehicleId, returnData = 'for_sale') => {
+    const returnStatus = typeof returnData === 'string' ? returnData : (returnData?.returnStatus || 'for_sale');
+    const returnMileage = typeof returnData === 'object' ? Number(returnData.returnMileage) : null;
+    const depositReturned = typeof returnData === 'object' ? returnData.depositReturned : true;
+    const notes = typeof returnData === 'object' ? returnData.notes : '';
+
     setVehicles((prev) =>
       prev.map((v) => {
         if (v.id === vehicleId) {
+          const updatedRental = v.rental ? {
+            ...v.rental,
+            depositReturned: depositReturned !== undefined ? depositReturned : true,
+            odometerEnd: returnMileage || v.mileage,
+            returnedDate: new Date().toISOString().split('T')[0],
+            returnNotes: notes || v.rental.returnNotes || ''
+          } : null;
+
           return {
             ...v,
-            status: returnStatus
+            status: returnStatus,
+            mileage: (returnMileage && returnMileage > v.mileage) ? returnMileage : v.mileage,
+            rental: updatedRental
           };
         }
         return v;
       })
     );
-    showToast('Renta finalizada. Vehículo retornado a inventario');
+    showToast('Contrato de renta finalizado. Retorno e inspección registrados con éxito.');
   };
 
   const handleUpdateVehicle = (updatedVehicle) => {
@@ -340,11 +406,21 @@ export default function App() {
   };
 
   const handleDeleteVehicle = (vehicleId) => {
+    const target = vehicles.find((v) => v.id === vehicleId);
+    if (target) {
+      const check = canDeleteVehicle(target);
+      if (!check.allowed) {
+        showToast(check.reason, 'error');
+        return false;
+      }
+    }
+
     setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
     if (selectedVehicleId === vehicleId) {
       setSelectedVehicleId(null);
     }
     showToast('Vehículo eliminado permanentemente del inventario', 'info');
+    return true;
   };
 
   const handleResetData = () => {
@@ -572,6 +648,7 @@ export default function App() {
           onTerminateRental={handleTerminateRental}
           onUpdateVehicle={handleUpdateVehicle}
           onDeleteVehicle={handleDeleteVehicle}
+          onReopenSale={handleReopenSale}
         />
       )}
 

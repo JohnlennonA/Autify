@@ -268,6 +268,72 @@ export const initialVehicles = [
         { id: "pay-4", date: "2026-10-22", amount: 350, method: "Zelle", concept: "Semana 4 de Renta" }
       ]
     }
+  },
+
+  {
+    id: "veh-006",
+    vin: "WBA31AG0XLG123456",
+    year: 2024,
+    make: "BMW",
+    model: "BMW X6 M60i",
+    color: "Magnetic Greem Metallic",
+    mileage: 31200,
+    titleStatus: "Clean",
+    status: "rented",
+    purchasePrice: 21800,
+    estimatedSalePrice: 29500,
+    soldPrice: null,
+    purchaseDate: "2026-09-01",
+    photos: [
+      "https://2684054.fs1.hubspotusercontent-na1.net/hub/2684054/hubfs/2024-bmw-%20X6-M60i--hero-tight-.jpg.jpg?width=1200&length=1200&name=2024-bmw-%20X6-M60i--hero-tight-.jpg.jpg",
+      "https://2684054.fs1.hubspotusercontent-na1.net/hub/2684054/hubfs/2024-bmw-x6-dash.jpg?width=1200&length=1200&name=2024-bmw-x6-dash.jpg",
+      "https://2684054.fs1.hubspotusercontent-na1.net/hub/2684054/hubfs/2024-bmw-x6-cargo-carpro.jpg?width=1200&length=1200&name=2024-bmw-x6-cargo-carpro.jpg",
+      "https://www.carpro.com/hs-fs/hubfs/bmw-x6-117mpg.jpg?width=1200&length=1200&name=bmw-x6-117mpg.jpgg"
+    ],
+    expenses: [
+      {
+        id: "exp-501",
+        category: "Mecánica / Motor",
+        description: "Inspección multipunto para renta, frenos y cambio sintético 0W-16",
+        amount: 420,
+        date: "2026-09-05"
+      },
+      {
+        id: "exp-502",
+        category: "Detallado y Limpieza",
+        description: "Desinfección profunda de interiores y protección de alfombras para renta",
+        amount: 180,
+        date: "2026-09-08"
+      },
+      {
+        id: "exp-503",
+        category: "Trámites / Subasta / DMV",
+        description: "Póliza comercial de seguro de alquiler y registro de flota",
+        amount: 650,
+        date: "2026-09-10"
+      }
+    ],
+    rental: {
+      customerName: "Carlos E. Mendoza",
+      customerPhone: "+1 (786) 554-9218",
+      customerEmail: "carlos.mendoza@gmail.com",
+      startDate: "2026-10-01",
+      endDate: "2026-11-15",
+      billingCycle: "semanal", // 'diario' | 'semanal' | 'mensual'
+      rate: 600, // $350 por semana
+      securityDeposit: 1000, // $500 de depósito en garantía
+      depositReturned: false,
+      totalReceived: 2900, // 4 semanas cobradas
+      odometerStart: 49800,
+      notes: "Cliente recurrente de Uber Black / Turo. Pago puntual todos los lunes.",
+      payments: [
+        { id: "pay-1", date: "2026-10-01", amount: 1000, method: "Efectivo" , concept: "Deposito"},
+        { id: "pay-2", date: "2026-10-01", amount: 600, method: "Zelle", concept: "Semana 1 de Renta" },
+        { id: "pay-3", date: "2026-10-08", amount: 600, method: "Zelle", concept: "Semana 2 de Renta" },
+        { id: "pay-4", date: "2026-10-15", amount: 600, method: "Zelle", concept: "Semana 3 de Renta" },
+        { id: "pay-5", date: "2026-10-22", amount: 600, method: "Zelle", concept: "Semana 4 de Renta" },
+      ]
+    }
   }
 ];
 

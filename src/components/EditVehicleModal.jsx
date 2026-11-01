@@ -12,6 +12,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { TITLE_STATUSES } from '../mockData';
+import { validateStatusTransition, canDeleteVehicle } from '../utils/businessLogic';
 
 export const EditVehicleModal = ({
   isOpen,
@@ -101,6 +102,15 @@ export const EditVehicleModal = ({
       return;
     }
 
+    // Business Logic: Validar transición de estado si cambió
+    if (formData.status !== vehicle.status) {
+      const transitionCheck = validateStatusTransition(vehicle, formData.status);
+      if (!transitionCheck.allowed) {
+        setError(`🚫 Regla de Negocio: ${transitionCheck.reason}`);
+        return;
+      }
+    }
+
     const purchaseNum = parseFloat(formData.purchasePrice);
     const estimatedNum = parseFloat(formData.estimatedSalePrice);
     const mileageNum = parseInt(formData.mileage, 10);
@@ -140,6 +150,12 @@ export const EditVehicleModal = ({
   };
 
   const handleDelete = () => {
+    const deleteCheck = canDeleteVehicle(vehicle);
+    if (!deleteCheck.allowed) {
+      setError(deleteCheck.reason);
+      return;
+    }
+
     const confirmMsg = `¿Estás seguro de que deseas eliminar permanentemente el vehículo:\n\n${vehicle.year} ${vehicle.make} ${vehicle.model} (VIN: ${vehicle.vin})?\n\nEsta acción no se puede deshacer.`;
     if (window.confirm(confirmMsg)) {
       onDeleteVehicle(vehicle.id);
@@ -302,10 +318,21 @@ export const EditVehicleModal = ({
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full text-xs bg-[#1E2025] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-blue-500"
               >
-                <option value="in_repair">Taller</option>
-                <option value="for_sale">En Venta</option>
-                <option value="rented">En Renta</option>
-                <option value="sold">Vendido</option>
+                {[
+                  { value: 'in_repair', label: 'Taller / Reparación' },
+                  { value: 'for_sale', label: 'En Venta / Listo' },
+                  { value: 'rented', label: 'En Renta Activa' },
+                  { value: 'sold', label: 'Vendido / Liquidado' }
+                ].map((st) => {
+                  const check = validateStatusTransition(vehicle, st.value);
+                  const isCurrent = vehicle.status === st.value;
+                  const isDisabled = !isCurrent && !check.allowed;
+                  return (
+                    <option key={st.value} value={st.value} disabled={isDisabled}>
+                      {st.label} {isDisabled ? '(Bloqueado por regla)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>

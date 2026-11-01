@@ -33,11 +33,26 @@ import {
   Save,
   Image as ImageIcon,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  AlertTriangle
 } from 'lucide-react';
-import { formatCurrency, formatMileage, calculateVehicleFinancials, normalizeExpenseCategory } from '../utils/formatters';
+import {
+  formatCurrency,
+  formatMileage,
+  calculateVehicleFinancials,
+  normalizeExpenseCategory
+} from '../utils/formatters';
 import { EXPENSE_CATEGORIES, TITLE_STATUSES } from '../mockData';
 import { EditVehicleModal } from './EditVehicleModal';
+import {
+  validateStatusTransition,
+  canRentVehicle,
+  canDeleteVehicle,
+  canAddExpense,
+  validateReturnInspection,
+  validateRentalContract,
+  validateRentalPayment
+} from '../utils/businessLogic';
 
 export const VehicleDetailModal = ({
   vehicle,
@@ -51,7 +66,8 @@ export const VehicleDetailModal = ({
   onAddRentalPayment,
   onTerminateRental,
   onUpdateVehicle,
-  onDeleteVehicle
+  onDeleteVehicle,
+  onReopenSale
 }) => {
   if (!vehicle) return null;
 
@@ -63,7 +79,30 @@ export const VehicleDetailModal = ({
   const [copied, setCopied] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // Business Alert Dialog state
+  const [businessAlert, setBusinessAlert] = useState(null);
+
+  // Return & Inspection Modal state
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [reopenConfirmOpen, setReopenConfirmOpen] = useState(false);
+  const [returnForm, setReturnForm] = useState({
+    returnMileage: vehicle.mileage || 0,
+    returnStatus: 'for_sale',
+    depositReturned: true,
+    notes: ''
+  });
+  const [returnError, setReturnError] = useState('');
+
   const handleConfirmDelete = () => {
+    const deleteCheck = canDeleteVehicle(vehicle);
+    if (!deleteCheck.allowed) {
+      setBusinessAlert({
+        title: 'Operación no permitida',
+        message: deleteCheck.reason
+      });
+      return;
+    }
+
     const confirmMsg = `¿Estás seguro de que deseas eliminar permanentemente el vehículo:\n\n${vehicle.year} ${vehicle.make} ${vehicle.model} (VIN: ${vehicle.vin})?\n\nEsta acción no se puede deshacer.`;
     if (window.confirm(confirmMsg)) {
       if (onDeleteVehicle) onDeleteVehicle(vehicle.id);
@@ -129,6 +168,15 @@ export const VehicleDetailModal = ({
 
   const handleCreateExpense = (e) => {
     e.preventDefault();
+    const expenseCheck = canAddExpense(vehicle);
+    if (!expenseCheck.allowed) {
+      setBusinessAlert({
+        title: 'Operación no permitida',
+        message: expenseCheck.reason
+      });
+      return;
+    }
+
     const amountNum = parseFloat(expenseAmount);
     if (!expenseDesc.trim() || isNaN(amountNum) || amountNum <= 0) return;
 
@@ -167,14 +215,25 @@ export const VehicleDetailModal = ({
     }
   };
 
-  // Handle switching status to rented
+  // Handle switching status with business logic enforcement
   const handleStatusChange = (newStatus) => {
+    const validation = validateStatusTransition(vehicle, newStatus);
+    if (!validation.allowed) {
+      setBusinessAlert({
+        title: 'Transición Bloqueada por Regla de Negocio',
+        message: validation.reason,
+        code: validation.code
+      });
+      return;
+    }
+
     if (newStatus === 'rented' && !vehicle.rental) {
       setIsSettingUpRental(true);
       setCenterTab('renta');
       setMobileTab('renta');
       return;
     }
+
     onUpdateVehicleStatus(vehicle.id, newStatus);
     if (newStatus === 'rented') {
       setCenterTab('renta');
@@ -185,6 +244,24 @@ export const VehicleDetailModal = ({
   // Submit New Rental Contract
   const handleSaveRentalContract = (e) => {
     e.preventDefault();
+    const rentCheck = canRentVehicle(vehicle);
+    if (!rentCheck.allowed) {
+      setBusinessAlert({
+        title: 'Operación no permitida',
+        message: rentCheck.reason
+      });
+      return;
+    }
+
+    const contractCheck = validateRentalContract(rentalForm);
+    if (!contractCheck.valid) {
+      setBusinessAlert({
+        title: 'Datos del contrato incompletos',
+        message: contractCheck.error
+      });
+      return;
+    }
+
     const rateNum = parseFloat(rentalForm.rate) || 0;
     const depositNum = parseFloat(rentalForm.securityDeposit) || 0;
 
@@ -217,9 +294,16 @@ export const VehicleDetailModal = ({
   // Submit Rental Payment
   const handleRecordPayment = (e) => {
     e.preventDefault();
-    const amountNum = parseFloat(paymentForm.amount);
-    if (isNaN(amountNum) || amountNum <= 0) return;
+    const paymentCheck = validateRentalPayment(paymentForm);
+    if (!paymentCheck.valid) {
+      setBusinessAlert({
+        title: 'Monto de cobro inválido',
+        message: paymentCheck.error
+      });
+      return;
+    }
 
+    const amountNum = parseFloat(paymentForm.amount);
     const payment = {
       id: `pay-${Date.now()}`,
       amount: amountNum,
@@ -241,15 +325,45 @@ export const VehicleDetailModal = ({
     setIsAddingPayment(false);
   };
 
-  const handleEndRental = () => {
-    if (window.confirm('¿Finalizar este contrato de renta y retornar el auto a inventario en venta?')) {
-      if (onTerminateRental) {
-        onTerminateRental(vehicle.id, 'for_sale');
-      } else {
-        onUpdateVehicleStatus(vehicle.id, 'for_sale');
-      }
-      setCenterTab('gastos');
-      setMobileTab('ficha');
+  const handleOpenReturnModal = () => {
+    setReturnForm({
+      returnMileage: vehicle.mileage || 0,
+      returnStatus: 'for_sale',
+      depositReturned: true,
+      notes: ''
+    });
+    setReturnError('');
+    setIsReturnModalOpen(true);
+  };
+
+  const handleConfirmReturnInspection = (e) => {
+    e.preventDefault();
+    const inspectionCheck = validateReturnInspection(vehicle, returnForm);
+    if (!inspectionCheck.valid) {
+      setReturnError(inspectionCheck.error);
+      return;
+    }
+
+    if (onTerminateRental) {
+      onTerminateRental(vehicle.id, {
+        returnStatus: returnForm.returnStatus,
+        returnMileage: parseInt(returnForm.returnMileage, 10),
+        depositReturned: returnForm.depositReturned,
+        notes: returnForm.notes.trim()
+      });
+    } else {
+      onUpdateVehicleStatus(vehicle.id, returnForm.returnStatus);
+    }
+
+    setIsReturnModalOpen(false);
+    setCenterTab('gastos');
+    setMobileTab('ficha');
+  };
+
+  const handleConfirmReopenSale = () => {
+    if (onReopenSale) {
+      onReopenSale(vehicle.id);
+      setReopenConfirmOpen(false);
     }
   };
 
@@ -336,56 +450,91 @@ export const VehicleDetailModal = ({
         )}
       </div>
 
-      {/* Quick Status Switcher Segmented Control (Includes 'rented') */}
+      {/* Sold Liquidated Card if status === 'sold' */}
+      {vehicle.status === 'sold' && (
+        <div className="rounded-xl bg-blue-950/20 border border-blue-500/30 p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5 uppercase tracking-wider">
+              <CheckCircle2 className="w-4 h-4 text-blue-400" />
+              Vehículo Liquidado / Cerrado
+            </span>
+            {onReopenSale && (
+              <button
+                type="button"
+                onClick={() => setReopenConfirmOpen(true)}
+                className="text-[11px] font-bold text-blue-400 hover:text-white underline underline-offset-2 transition-colors cursor-pointer"
+              >
+                Reversar Venta
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center pt-1">
+            <div className="p-2 rounded-lg bg-[#141619]/80 border border-white/5">
+              <span className="text-[9px] text-slate-400 uppercase block">Precio Venta</span>
+              <span className="text-xs font-bold font-mono text-white mt-0.5 block">
+                {formatCurrency(vehicle.soldPrice || vehicle.estimatedSalePrice)}
+              </span>
+            </div>
+            <div className="p-2 rounded-lg bg-[#141619]/80 border border-white/5">
+              <span className="text-[9px] text-slate-400 uppercase block">Ganancia Neta</span>
+              <span className={`text-xs font-bold font-mono mt-0.5 block ${fin.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {fin.netProfit >= 0 ? '+' : ''}{formatCurrency(fin.netProfit)}
+              </span>
+            </div>
+            <div className="p-2 rounded-lg bg-[#141619]/80 border border-white/5">
+              <span className="text-[9px] text-slate-400 uppercase block">ROI Final</span>
+              <span className={`text-xs font-bold font-mono mt-0.5 block ${fin.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {fin.netProfit >= 0 ? '+' : ''}{fin.roi.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Status Switcher Segmented Control with Business Rules */}
       <div>
-        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-          Estado Operativo del Auto
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            Estado Operativo del Auto
+          </label>
+          <span className="text-[10px] text-slate-500 font-mono">
+            {vehicle.status === 'rented' ? 'Contrato Activo' : vehicle.status === 'sold' ? 'Operación Cerrada' : 'Inventario Activo'}
+          </span>
+        </div>
         <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-[#1E2025] border border-white/5">
-          <button
-            type="button"
-            onClick={() => handleStatusChange('in_repair')}
-            className={`py-2 px-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all text-center cursor-pointer ${
-              vehicle.status === 'in_repair'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-glow-amber'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Taller
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('for_sale')}
-            className={`py-2 px-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all text-center cursor-pointer ${
-              vehicle.status === 'for_sale'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-glow-emerald'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            En Venta
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('rented')}
-            className={`py-2 px-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all text-center cursor-pointer ${
-              vehicle.status === 'rented'
-                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-glow-purple'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            En Renta
-          </button>
-          <button
-            type="button"
-            onClick={() => handleStatusChange('sold')}
-            className={`py-2 px-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all text-center cursor-pointer ${
-              vehicle.status === 'sold'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 shadow-glow-electric'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Vendido
-          </button>
+          {[
+            { key: 'in_repair', label: 'Taller', activeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-glow-amber' },
+            { key: 'for_sale', label: 'En Venta', activeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-glow-emerald' },
+            { key: 'rented', label: 'En Renta', activeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-glow-purple' },
+            { key: 'sold', label: 'Vendido', activeColor: 'bg-blue-600/20 text-blue-300 border-blue-500/40 shadow-glow-electric' }
+          ].map((st) => {
+            const isActive = vehicle.status === st.key;
+            const validation = validateStatusTransition(vehicle, st.key);
+            const isBlocked = !isActive && !validation.allowed;
+
+            return (
+              <button
+                key={st.key}
+                type="button"
+                onClick={() => handleStatusChange(st.key)}
+                className={`py-2 px-1 text-[11px] sm:text-xs font-semibold rounded-lg transition-all text-center cursor-pointer relative ${
+                  isActive
+                    ? st.activeColor
+                    : isBlocked
+                    ? 'text-slate-600 bg-black/30 opacity-45 hover:opacity-75'
+                    : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                }`}
+                title={isBlocked ? validation.reason : `Cambiar a ${st.label}`}
+              >
+                <span>{st.label}</span>
+                {isBlocked && (
+                  <span className="block text-[8px] font-mono text-rose-400 font-medium leading-none mt-0.5">
+                    Bloqueado
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -513,14 +662,60 @@ export const VehicleDetailModal = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsSettingUpRental(!isSettingUpRental)}
-          className="text-xs px-2.5 py-1 rounded-lg bg-[#1E2025] hover:bg-white/5 border border-white/5 text-slate-300 transition-all cursor-pointer"
-        >
-          {isSettingUpRental ? 'Cancelar Edición' : rental ? 'Editar Contrato' : 'Configurar Renta'}
-        </button>
+        {vehicle.status === 'for_sale' || vehicle.status === 'rented' ? (
+          <button
+            type="button"
+            onClick={() => setIsSettingUpRental(!isSettingUpRental)}
+            className="text-xs px-2.5 py-1 rounded-lg bg-[#1E2025] hover:bg-white/5 border border-white/5 text-slate-300 transition-all cursor-pointer"
+          >
+            {isSettingUpRental ? 'Cancelar Edición' : rental ? 'Editar Contrato' : 'Configurar Renta'}
+          </button>
+        ) : (
+          <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-white/5 text-slate-500 border border-white/5">
+            {vehicle.status === 'sold' ? 'Renta Bloqueada (Vendido)' : 'Renta Inactiva (Taller)'}
+          </span>
+        )}
       </div>
+
+      {/* Locked / Operational Banners if status is sold or in_repair */}
+      {vehicle.status === 'sold' && (
+        <div className="rounded-2xl border border-blue-500/30 bg-blue-950/20 p-5 text-center space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mx-auto text-blue-400">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+              Contratos de Renta Inhabilitados
+            </h4>
+            <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+              Este vehículo ya fue <strong className="text-blue-300">VENDIDO y liquidado comercialmente</strong>. Por reglas operativas y fiscales, una unidad transferida no puede asignarse en renta a ningún arrendatario.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {vehicle.status === 'in_repair' && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0">
+              <Wrench className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-amber-300">Unidad en Taller / Reparaciones Pendientes</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Para entregar este vehículo a un arrendatario, primero debe marcarlo como "En Venta / Listo".
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleStatusChange('for_sale')}
+            className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
+          >
+            Marcar Listo para Renta
+          </button>
+        </div>
+      )}
 
       {/* Setup or Edit Contract Form */}
       {isSettingUpRental && (
@@ -862,11 +1057,11 @@ export const VehicleDetailModal = ({
             <span className="text-xs text-slate-400">¿El cliente entregó el vehículo?</span>
             <button
               type="button"
-              onClick={handleEndRental}
-              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+              onClick={handleOpenReturnModal}
+              className="px-3.5 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white border border-purple-500/25 hover:border-purple-500/40 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Finalizar Renta y Regresar a Inventario</span>
+              <RotateCcw className="w-3.5 h-3.5 text-purple-400" />
+              <span>Finalizar Renta e Inspección</span>
             </button>
           </div>
 
@@ -876,17 +1071,38 @@ export const VehicleDetailModal = ({
       {!rental && !isSettingUpRental && (
         <div className="p-8 text-center rounded-xl bg-[#1E2025] border border-white/5 space-y-3">
           <Key className="w-10 h-10 text-purple-400 mx-auto" />
-          <h4 className="text-sm font-bold text-white">Este vehículo no tiene contrato de renta activo</h4>
+          <h4 className="text-sm font-bold text-white">
+            {vehicle.status === 'sold'
+              ? 'Vehículo Vendido - Renta Inhabilitada'
+              : vehicle.status === 'in_repair'
+              ? 'Vehículo en Taller de Reparación'
+              : 'Este vehículo no tiene contrato de renta activo'}
+          </h4>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Puedes rentar este auto a un cliente, registrar sus datos, tarifa por día/semana, depósito de garantía y llevar el control de cada cobro.
+            {vehicle.status === 'sold'
+              ? 'Este auto ya fue transferido y liquidado comercialmente. No puede rentarse a ningún cliente.'
+              : vehicle.status === 'in_repair'
+              ? 'La unidad está en proceso mecánico. Complete las reparaciones y márquela como lista antes de entregarla.'
+              : 'Puedes rentar este auto a un cliente, registrar sus datos, tarifa por día/semana, depósito de garantía y llevar el control de cada cobro.'}
           </p>
-          <button
-            type="button"
-            onClick={() => setIsSettingUpRental(true)}
-            className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-glow-purple transition-all cursor-pointer"
-          >
-            Iniciar Nuevo Contrato de Renta
-          </button>
+          {vehicle.status === 'for_sale' && (
+            <button
+              type="button"
+              onClick={() => setIsSettingUpRental(true)}
+              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-glow-purple transition-all cursor-pointer"
+            >
+              Iniciar Nuevo Contrato de Renta
+            </button>
+          )}
+          {vehicle.status === 'in_repair' && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange('for_sale')}
+              className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-bold text-xs transition-all cursor-pointer"
+            >
+              Marcar Reparaciones Listas
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -920,9 +1136,18 @@ export const VehicleDetailModal = ({
       </div>
 
       {/* Inline Quick Form to Add Expense (CATEGORÍAS EN ESPAÑOL) */}
+      {vehicle.status === 'sold' && (
+        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs flex items-center gap-2.5">
+          <ShieldAlert className="w-4 h-4 shrink-0 text-blue-400" />
+          <span>Vehículo liquidado y cerrado contablemente. Para imputar nuevos gastos o garantías, reverse la venta primero.</span>
+        </div>
+      )}
+
       <form
         onSubmit={handleCreateExpense}
-        className="rounded-xl bg-[#1E2025] border border-white/5 p-3.5 flex flex-col gap-2.5"
+        className={`rounded-xl bg-[#1E2025] border border-white/5 p-3.5 flex flex-col gap-2.5 ${
+          vehicle.status === 'sold' ? 'opacity-60' : ''
+        }`}
       >
         <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
           <Plus className="w-3.5 h-3.5 text-emerald-400" /> Registrar Nuevo Gasto
@@ -932,9 +1157,10 @@ export const VehicleDetailModal = ({
           <div>
             <label className="block text-[10px] text-slate-400 uppercase mb-1">Categoría (En Español) *</label>
             <select
+              disabled={vehicle.status === 'sold'}
               value={expenseCategory}
               onChange={(e) => setExpenseCategory(e.target.value)}
-              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-amber-500"
+              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-200 focus:outline-none focus:border-amber-500 disabled:cursor-not-allowed"
             >
               {EXPENSE_CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -949,6 +1175,7 @@ export const VehicleDetailModal = ({
                 $
               </span>
               <input
+                disabled={vehicle.status === 'sold'}
                 type="number"
                 step="any"
                 min="0"
@@ -956,7 +1183,7 @@ export const VehicleDetailModal = ({
                 placeholder="0.00"
                 value={expenseAmount}
                 onChange={(e) => setExpenseAmount(e.target.value)}
-                className="w-full text-xs font-mono bg-[#141619] border border-white/5 rounded-lg pl-6 pr-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                className="w-full text-xs font-mono bg-[#141619] border border-white/5 rounded-lg pl-6 pr-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -966,29 +1193,32 @@ export const VehicleDetailModal = ({
           <div className="sm:col-span-2">
             <label className="block text-[10px] text-slate-400 uppercase mb-1">Descripción del Gasto *</label>
             <input
+              disabled={vehicle.status === 'sold'}
               type="text"
               required
               placeholder="Ej. Bumper delantero OEM, pintura bicapa o alineación..."
               value={expenseDesc}
               onChange={(e) => setExpenseDesc(e.target.value)}
-              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:cursor-not-allowed"
             />
           </div>
 
           <div>
             <label className="block text-[10px] text-slate-400 uppercase mb-1">Fecha</label>
             <input
+              disabled={vehicle.status === 'sold'}
               type="date"
               value={expenseDate}
               onChange={(e) => setExpenseDate(e.target.value)}
-              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-slate-100 focus:outline-none focus:border-amber-500 font-mono"
+              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-slate-100 focus:outline-none focus:border-amber-500 font-mono disabled:cursor-not-allowed"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full mt-1 py-2 px-3 rounded-lg bg-emerald-500 text-slate-950 font-semibold text-xs hover:bg-emerald-400 active:scale-[0.99] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+          disabled={vehicle.status === 'sold'}
+          className="w-full mt-1 py-2 px-3 rounded-lg bg-emerald-500 text-slate-950 font-semibold text-xs hover:bg-emerald-400 active:scale-[0.99] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Agregar Gasto al Vehículo</span>
@@ -1369,6 +1599,210 @@ export const VehicleDetailModal = ({
         </div>
 
       </div>
+
+      {/* Business Logic Warning Modal */}
+      {businessAlert && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#141619] border border-amber-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">{businessAlert.title}</h3>
+            <p className="text-sm text-slate-300 leading-relaxed mb-6">
+              {businessAlert.message}
+            </p>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setBusinessAlert(null)}
+                className="px-5 py-2.5 rounded-xl bg-[#1E2025] hover:bg-[#2A2E35] text-white text-sm font-semibold transition-all cursor-pointer border border-white/10"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reopen / Reverse Sale Confirmation Modal */}
+      {reopenConfirmOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#141619] border border-blue-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
+              <DollarSign className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">¿Reversar Venta y Reactivar Vehículo?</h3>
+            <p className="text-sm text-slate-300 leading-relaxed mb-6">
+              Esta acción cancelará la liquidación del vehículo <span className="font-semibold text-white">{vehicle.year} {vehicle.make} {vehicle.model}</span> y lo devolverá al inventario disponible (<span className="text-emerald-400 font-semibold">En Venta</span>).
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setReopenConfirmOpen(false)}
+                className="px-4 py-2 rounded-xl bg-[#1E2025] hover:bg-[#2A2E35] text-slate-300 text-sm font-medium transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmReopenSale}
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-600/30 transition-all cursor-pointer"
+              >
+                Sí, Reversar y Reactivar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Return & Inspection Modal */}
+      {isReturnModalOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#141619] border border-purple-500/30 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Devolución e Inspección Vehicular</h3>
+                  <p className="text-xs text-slate-400">Cierre formal de contrato de renta</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsReturnModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmReturnInspection} className="space-y-4">
+              {returnError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{returnError}</span>
+                </div>
+              )}
+
+              {/* Start vs Return Mileage */}
+              <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[#1E2025] border border-white/5">
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Km Inicial Renta</span>
+                  <span className="text-sm font-bold text-white">
+                    {(vehicle.rental?.odometerStart || vehicle.mileage || 0).toLocaleString()} km
+                  </span>
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                    Km de Devolución *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={vehicle.rental?.odometerStart || vehicle.mileage || 0}
+                    value={returnForm.returnMileage}
+                    onChange={(e) => setReturnForm({ ...returnForm, returnMileage: e.target.value })}
+                    className="w-full bg-[#141619] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
+
+              {/* Destination Status Selector */}
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Estado de Destino del Vehículo *
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setReturnForm({ ...returnForm, returnStatus: 'for_sale' })}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      returnForm.returnStatus === 'for_sale'
+                        ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
+                        : 'bg-[#1E2025] border-white/5 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="font-semibold text-xs text-white flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      En Venta (Óptimo)
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-tight">
+                      El vehículo superó la inspección y queda listo para exhibición o re-arrendamiento.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReturnForm({ ...returnForm, returnStatus: 'in_repair' })}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      returnForm.returnStatus === 'in_repair'
+                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                        : 'bg-[#1E2025] border-white/5 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="font-semibold text-xs text-white flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                      A Taller (Reparación)
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-tight">
+                      Presenta daños o requiere mantenimiento preventivo antes de operar.
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Security deposit status */}
+              {vehicle.rental?.securityDeposit > 0 && (
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#1E2025] border border-white/5">
+                  <input
+                    type="checkbox"
+                    id="depositReturned"
+                    checked={returnForm.depositReturned}
+                    onChange={(e) => setReturnForm({ ...returnForm, depositReturned: e.target.checked })}
+                    className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-[#141619] border-white/20 cursor-pointer"
+                  />
+                  <label htmlFor="depositReturned" className="text-xs text-slate-300 cursor-pointer">
+                    Depósito de garantía devuelto al cliente ({formatCurrency(vehicle.rental.securityDeposit)})
+                  </label>
+                </div>
+              )}
+
+              {/* Inspection Notes */}
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                  Notas de Inspección y Entrega (Opcional)
+                </label>
+                <textarea
+                  rows="2"
+                  value={returnForm.notes}
+                  onChange={(e) => setReturnForm({ ...returnForm, notes: e.target.value })}
+                  placeholder="Ej: Carrocería limpia, llantas con 80% de vida, sin rayones..."
+                  className="w-full bg-[#1E2025] border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                ></textarea>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsReturnModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#1E2025] hover:bg-[#2A2E35] text-slate-300 text-xs font-medium transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                >
+                  Confirmar Recepción e Inspección
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Edit Vehicle Characteristics Modal */}
       {isEditModalOpen && (
