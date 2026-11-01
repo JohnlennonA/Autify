@@ -1,6 +1,5 @@
 import React from 'react';
-import { Search, Plus, Car, Layers, SlidersHorizontal, RefreshCw, LogOut, User } from 'lucide-react';
-import { VEHICLE_STATUSES } from '../mockData';
+import { Search, Plus, RefreshCw, Menu } from 'lucide-react';
 
 export const Navbar = ({
   searchQuery,
@@ -11,53 +10,35 @@ export const Navbar = ({
   onOpenNewVehicleModal,
   onResetData,
   currentUser,
-  onLogout
+  onLogout,
+  onOpenMobileSidebar
 }) => {
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#0B0C0E]/95 backdrop-blur-md border-b border-white/[0.07] pt-[max(env(safe-area-inset-top,0px),8px)] pwa-header-safe transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
-        {/* Main top row: Brand + Search + User + Action */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 w-full bg-[#000000]/80 backdrop-blur-xl border-b border-white/[0.07] pt-[max(env(safe-area-inset-top,0px),8px)] pwa-header-safe transition-all">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3">
+        {/* Main top row */}
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           
-          {/* Logo & Platform Badge */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img
-                src="/images/autify-logo.png"
-                alt="Autify"
-                className="h-7 sm:h-8 w-auto object-contain shrink-0"
-              />
-              <div className="hidden sm:block border-l border-white/10 pl-3">
-                <p className="text-[11px] text-slate-400 font-medium">
-                  Reconditioning & Arbitrage • USA Market
-                </p>
-              </div>
-            </div>
+          {/* Left: Mobile-only Hamburger & Logo (HIDDEN on tablet & desktop because slim/wide sidebar exists) */}
+          <div className="flex md:hidden items-center gap-3">
+            <button
+              onClick={onOpenMobileSidebar}
+              className="p-2 rounded-xl bg-[#141619] border border-white/10 text-slate-300 hover:text-white hover:border-[#CCFF00]/40 transition-all cursor-pointer active:scale-95"
+              title="Abrir menú"
+              aria-label="Abrir menú"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
 
-            {/* Mobile Actions: User info + New Vehicle button + Logout */}
-            <div className="flex items-center gap-2 md:hidden">
-              <button
-                onClick={onOpenNewVehicleModal}
-                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500 text-black font-semibold shadow-glow-emerald hover:bg-emerald-400 active:scale-95 transition-all"
-                title="Nuevo Vehículo"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-
-              {onLogout && (
-                <button
-                  onClick={onLogout}
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#1E2025] text-slate-400 hover:text-rose-400 border border-white/5 active:scale-95 transition-all"
-                  title="Cerrar Sesión"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            <img
+              src="/images/autify-logo.png"
+              alt="Autify"
+              className="h-6 w-auto object-contain shrink-0"
+            />
           </div>
 
-          {/* Search Bar + Controls */}
-          <div className="flex items-center gap-3 flex-1 md:max-w-xl">
+          {/* Center: Search Bar (spans full width on desktop) */}
+          <div className="flex items-center gap-2.5 flex-1 max-w-2xl">
             <div className="relative w-full">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                 <Search className="w-4 h-4" />
@@ -67,7 +48,7 @@ export const Navbar = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar por VIN, Marca o Modelo..."
-                className="w-full pl-10 pr-4 py-2 text-sm bg-[#1E2025] border border-white/5 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/40 transition-all font-sans"
+                className="w-full pl-10 pr-10 py-2 text-xs sm:text-sm bg-[#0E1013] border border-white/10 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#CCFF00]/60 focus:ring-1 focus:ring-[#CCFF00]/30 transition-all font-sans"
               />
               {searchQuery && (
                 <button
@@ -78,83 +59,28 @@ export const Navbar = ({
                 </button>
               )}
             </div>
+          </div>
 
-            {/* Desktop New Vehicle Button */}
+          {/* Right: Prominent "+ Nuevo Vehículo" CTA & Refresh Button */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={onOpenNewVehicleModal}
-              className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 text-sm font-semibold hover:bg-emerald-400 shadow-glow-emerald active:scale-95 transition-all shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-[#CCFF00] text-black text-xs sm:text-sm font-extrabold hover:bg-[#b8e600] shadow-[0_0_15px_rgba(204,255,0,0.25)] active:scale-95 transition-all shrink-0 cursor-pointer"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Nuevo</span>
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span className="hidden sm:inline">Nuevo Vehículo</span>
             </button>
 
-            {/* Reset mock data button (subtle) */}
+            {/* Reset mock data button */}
             <button
               onClick={onResetData}
               title="Restablecer datos demo"
-              className="p-2 rounded-xl bg-[#1E2025] border border-white/5 text-slate-400 hover:text-slate-200 hover:border-white/10 transition-all shrink-0"
+              className="p-2 rounded-xl bg-[#0E1013] border border-white/10 text-slate-400 hover:text-slate-200 hover:border-white/20 transition-all shrink-0 cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
-
-            {/* Active User Profile & Logout (Desktop / Tablet) */}
-            {currentUser && (
-              <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-white/[0.08] shrink-0">
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[#1E2025] border border-white/5">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500/30 to-blue-500/30 text-emerald-300 font-mono text-xs font-bold flex items-center justify-center border border-white/10">
-                    {currentUser.avatarInitials || 'US'}
-                  </div>
-                  <div className="hidden lg:block text-left">
-                    <span className="block text-xs font-bold text-slate-200 leading-tight">
-                      {currentUser.name}
-                    </span>
-                    <span className="block text-[10px] text-slate-400 leading-tight font-mono">
-                      {currentUser.role?.split('&')[0]?.trim() || 'Manager'}
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={onLogout}
-                  title="Cerrar Sesión"
-                  className="p-2 rounded-xl bg-[#1E2025] border border-white/5 text-slate-400 hover:text-rose-400 hover:border-rose-500/20 hover:bg-rose-500/5 transition-all cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            )}
           </div>
-        </div>
 
-        {/* Filter Tabs Bar (Horizontal scrolling on mobile/tablet) */}
-        <div className="mt-4 pt-3 border-t border-white/[0.05] flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          {VEHICLE_STATUSES.map((tab) => {
-            const count = statusCounts[tab.value] ?? 0;
-            const isActive = selectedStatus === tab.value;
-
-            return (
-              <button
-                key={tab.value}
-                onClick={() => setSelectedStatus(tab.value)}
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-glow-electric font-semibold'
-                    : 'bg-[#1E2025] text-slate-300 hover:bg-[#252830] hover:text-white border border-white/5'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                    isActive
-                      ? 'bg-blue-900/60 text-blue-200'
-                      : 'bg-white/10 text-slate-400'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
         </div>
       </div>
     </header>

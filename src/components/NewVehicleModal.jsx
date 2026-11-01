@@ -214,7 +214,7 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Año</label>
               <input
@@ -260,6 +260,19 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
                 {TITLE_STATUSES.map((title) => (
                   <option key={title} value={title}>{title}</option>
                 ))}
+              </select>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Fase / Estado</label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="w-full text-xs bg-[#1E2025] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-blue-500"
+              >
+                <option value="in_repair">Taller</option>
+                <option value="for_sale">En Venta</option>
+                <option value="rented">En Renta</option>
               </select>
             </div>
           </div>

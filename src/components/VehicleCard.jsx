@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Clock, Gauge, ArrowUpRight, DollarSign, Wrench } from 'lucide-react';
+import { Copy, Check, Clock, Gauge, ArrowUpRight, DollarSign, Wrench, Key, User } from 'lucide-react';
 import { formatCurrency, formatMileage, calculateVehicleFinancials } from '../utils/formatters';
 
 export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
@@ -26,6 +26,11 @@ export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
         return {
           text: 'En Venta',
           className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+        };
+      case 'rented':
+        return {
+          text: 'En Renta',
+          className: 'bg-purple-500/10 text-purple-300 border-purple-500/20'
         };
       case 'sold':
         return {
@@ -59,6 +64,8 @@ export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
   const mainPhoto = vehicle.photos?.[0] || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
 
   const isProfitable = fin.netProfit >= 0;
+  const isRented = vehicle.status === 'rented';
+  const rental = vehicle.rental || {};
 
   return (
     <div
@@ -85,12 +92,19 @@ export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
             </span>
           </div>
 
-          {/* Stock Days Pill */}
+          {/* Stock Days / Rented Days Pill */}
           <div className="absolute bottom-2.5 right-2.5 pointer-events-none">
-            <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#0B0C0E]/80 backdrop-blur-md text-slate-300 border border-white/10">
-              <Clock className="w-3 h-3 text-slate-400" />
-              {fin.daysInStock} d en stock
-            </span>
+            {isRented ? (
+              <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-purple-950/80 backdrop-blur-md text-purple-300 border border-purple-500/30">
+                <Key className="w-3 h-3 text-purple-400" />
+                {fin.rentalDays} d en renta
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#0B0C0E]/80 backdrop-blur-md text-slate-300 border border-white/10">
+                <Clock className="w-3 h-3 text-slate-400" />
+                {fin.daysInStock} d en stock
+              </span>
+            )}
           </div>
         </div>
 
@@ -158,37 +172,59 @@ export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
             </span>
           </div>
 
-          {/* Col 2: Target Sale Price */}
+          {/* Col 2: Target Sale Price OR Rental Revenue */}
           <div className="p-2 rounded-lg bg-[#1E2025]/60 border border-white/[0.03]">
             <span className="block text-[10px] text-slate-400 uppercase tracking-wider truncate">
-              {vehicle.status === 'sold' ? 'Vendido Por' : 'P. Estimado'}
+              {isRented
+                ? 'Cobro Renta'
+                : vehicle.status === 'sold'
+                ? 'Vendido Por'
+                : 'P. Estimado'}
             </span>
-            <span className="block font-mono text-xs sm:text-sm font-bold text-slate-200 mt-1">
-              {formatCurrency(fin.targetPrice)}
+            <span className={`block font-mono text-xs sm:text-sm font-bold mt-1 ${isRented ? 'text-purple-300' : 'text-slate-200'}`}>
+              {isRented ? formatCurrency(rental.totalReceived || 0) : formatCurrency(fin.targetPrice)}
             </span>
             <span className="block text-[10px] text-slate-400 truncate mt-0.5">
-              {vehicle.status === 'sold' ? 'Cerrado' : 'Target'}
+              {isRented ? `${rental.billingCycle || 'semanal'}` : vehicle.status === 'sold' ? 'Cerrado' : 'Target'}
             </span>
           </div>
 
-          {/* Col 3: Net Margin / ROI */}
+          {/* Col 3: Net Margin / ROI OR Renter Name */}
           <div className="p-2 rounded-lg bg-[#1E2025]/60 border border-white/[0.03]">
-            <span className="block text-[10px] text-slate-400 uppercase tracking-wider truncate">
-              Margen Neto
-            </span>
-            <span className={`block font-mono text-xs sm:text-sm font-bold mt-1 ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}`}>
-              {isProfitable ? '+' : ''}{formatCurrency(fin.netProfit)}
-            </span>
-            <span className={`block text-[10px] font-mono font-medium truncate mt-0.5 ${isProfitable ? 'text-emerald-400/90' : 'text-rose-400/90'}`}>
-              {isProfitable ? '+' : ''}{fin.roi.toFixed(1)}% ROI
-            </span>
+            {isRented ? (
+              <>
+                <span className="block text-[10px] text-slate-400 uppercase tracking-wider truncate flex items-center justify-center gap-0.5">
+                  <User className="w-2.5 h-2.5 text-purple-400" /> Arrendatario
+                </span>
+                <span className="block text-xs font-bold text-white truncate mt-1">
+                  {rental.customerName?.split(' ')[0] || 'Activo'}
+                </span>
+                <span className="block text-[10px] text-purple-300 font-mono truncate mt-0.5">
+                  ${rental.rate || 0}/{rental.billingCycle?.slice(0, 3) || 'sem'}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="block text-[10px] text-slate-400 uppercase tracking-wider truncate">
+                  Margen Neto
+                </span>
+                <span className={`block font-mono text-xs sm:text-sm font-bold mt-1 ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {isProfitable ? '+' : ''}{formatCurrency(fin.netProfit)}
+                </span>
+                <span className={`block text-[10px] font-mono font-medium truncate mt-0.5 ${isProfitable ? 'text-emerald-400/90' : 'text-rose-400/90'}`}>
+                  {isProfitable ? '+' : ''}{fin.roi.toFixed(1)}% ROI
+                </span>
+              </>
+            )}
           </div>
 
         </div>
 
         {/* View Details CTA */}
         <div className="mt-3 flex items-center justify-between text-xs text-slate-400 group-hover:text-emerald-400 transition-colors">
-          <span className="font-medium">Gestionar taller y bitácora</span>
+          <span className="font-medium">
+            {isRented ? 'Gestionar contrato y cobros de renta' : 'Gestionar taller y bitácora'}
+          </span>
           <ArrowUpRight className="w-4 h-4" />
         </div>
       </div>
