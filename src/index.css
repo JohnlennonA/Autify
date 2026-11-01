@@ -68,3 +68,56 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 0.75rem; /* rounded-xl */
 }
+
+/* ============================================================================== */
+/* iOS SAFARI / IPHONE DATE INPUT & RESPONSIVE CONTAINER BREAKAGE FIXES           */
+/* ============================================================================== */
+/* Prevents iOS WebKit <input type="date"> from blowing out grid/flex containers */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  color-scheme: dark !important;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  font-size: 13px !important;
+  line-height: normal;
+}
+
+/* Fix iOS Safari native text alignment and height inside date input */
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left !important;
+  min-height: 1.25rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Date picker calendar icon styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+  opacity: 0.85;
+  padding: 0;
+  margin-left: 4px;
+}
+
+/* Prevent CSS Grid blowout on mobile: enforce min-width: 0 on all grid items */
+.grid > * {
+  min-width: 0;
+}
+
+/* Ensure all form controls never exceed their parent container */
+input, select, textarea {
+  max-width: 100%;
+}
+
+/* Smooth momentum scrolling on iOS and Android */
+.smooth-scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+

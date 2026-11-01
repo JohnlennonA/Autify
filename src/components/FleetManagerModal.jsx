@@ -180,33 +180,36 @@ export const FleetManagerModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 lg:p-6 animate-fade-in">
-      <div className="bg-[#0F1013] border border-white/10 rounded-2xl w-full max-w-7xl h-[92vh] flex flex-col shadow-2xl overflow-hidden relative">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 lg:p-6 animate-fade-in">
+      <div className="bg-[#0F1013] border border-white/10 rounded-t-2xl sm:rounded-2xl w-full max-w-7xl h-[94vh] sm:h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
         
+        {/* Mobile sheet drag handle indicator */}
+        <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
+
         {/* Top Header Bar */}
-        <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between bg-[#141619] shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-sm">
-              <SlidersHorizontal className="w-5 h-5" />
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/[0.08] flex items-center justify-between bg-[#141619] shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-sm shrink-0">
+              <SlidersHorizontal className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-white tracking-tight">Centro de Gestión de Flota</h2>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/25 font-bold">
+                <h2 className="text-sm sm:text-lg font-bold text-white tracking-tight truncate">Centro de Gestión de Flota</h2>
+                <span className="text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/25 font-bold shrink-0">
                   {vehicles.length} Unidades
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-400 truncate hidden sm:block">
                 Matriz ejecutiva: supervisión operativa, costos en línea y exportación contable
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={handleExportCSV}
-              className="px-3.5 py-2 rounded-xl bg-[#1E2025] hover:bg-[#2A2E35] text-slate-200 text-xs font-semibold flex items-center gap-2 border border-white/10 transition-all cursor-pointer hover:border-white/20 active:scale-95"
+              className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#1E2025] hover:bg-[#2A2E35] text-slate-200 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 border border-white/10 transition-all cursor-pointer hover:border-white/20 active:scale-95"
               title="Descargar inventario en CSV / Excel"
             >
               <Download className="w-3.5 h-3.5 text-blue-400" />
@@ -220,17 +223,17 @@ export const FleetManagerModal = ({
                   onClose();
                   onOpenNewVehicleModal();
                 }}
-                className="px-3.5 py-2 rounded-xl bg-[#CCFF00] hover:bg-[#b8e600] text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#CCFF00] hover:bg-[#b8e600] text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Agregar Auto</span>
+                <span className="hidden xs:inline sm:inline">Agregar Auto</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -238,35 +241,35 @@ export const FleetManagerModal = ({
         </div>
 
         {/* Metrics Bar */}
-        <div className="px-6 py-3 bg-[#111317] border-b border-white/[0.06] grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 shrink-0">
-          <div className="p-2.5 rounded-xl bg-[#181A1F] border border-white/5">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">Capital en Flota</span>
-            <span className="font-mono text-sm font-bold text-white">{formatCurrency(totals.totalInv)}</span>
+        <div className="px-3 sm:px-6 py-2.5 sm:py-3 bg-[#111317] border-b border-white/[0.06] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5 shrink-0">
+          <div className="p-2 sm:p-2.5 rounded-xl bg-[#181A1F] border border-white/5 min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold block truncate">Capital en Flota</span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-white truncate block">{formatCurrency(totals.totalInv)}</span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#181A1F] border border-white/5">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">Gastos Registrados</span>
-            <span className="font-mono text-sm font-bold text-amber-400">{formatCurrency(totals.totalExpenses)}</span>
+          <div className="p-2 sm:p-2.5 rounded-xl bg-[#181A1F] border border-white/5 min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold block truncate">Gastos Registrados</span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-amber-400 truncate block">{formatCurrency(totals.totalExpenses)}</span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#181A1F] border border-white/5">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">Utilidad Estimada</span>
-            <span className="font-mono text-sm font-bold text-emerald-400">{formatCurrency(totals.totalProjectedProfit)}</span>
+          <div className="p-2 sm:p-2.5 rounded-xl bg-[#181A1F] border border-white/5 min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold block truncate">Utilidad Estimada</span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-emerald-400 truncate block">{formatCurrency(totals.totalProjectedProfit)}</span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#181A1F] border border-teal-500/20">
-            <span className="text-[10px] text-teal-400 uppercase font-semibold block">En Patio (Disponibles)</span>
-            <span className="font-mono text-sm font-bold text-teal-300">{totals.availableCount} autos</span>
+          <div className="p-2 sm:p-2.5 rounded-xl bg-[#181A1F] border border-teal-500/20 min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-teal-400 uppercase font-semibold block truncate">En Patio (Stock)</span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-teal-300 truncate block">{totals.availableCount} autos</span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#181A1F] border border-purple-500/20">
-            <span className="text-[10px] text-purple-400 uppercase font-semibold block">En Renta Activa</span>
-            <span className="font-mono text-sm font-bold text-purple-300">{totals.rentedCount} autos</span>
+          <div className="p-2 sm:p-2.5 rounded-xl bg-[#181A1F] border border-purple-500/20 min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-purple-400 uppercase font-semibold block truncate">En Renta Activa</span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-purple-300 truncate block">{totals.rentedCount} autos</span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#181A1F] border border-amber-500/20">
-            <span className="text-[10px] text-amber-400 uppercase font-semibold block">En Taller / Rep.</span>
-            <span className="font-mono text-sm font-bold text-amber-300">{totals.repairCount} autos</span>
+          <div className="p-2 sm:p-2.5 rounded-xl bg-[#181A1F] border border-amber-500/20 min-w-0">
+            <span className="text-[9px] sm:text-[10px] text-amber-400 uppercase font-semibold block truncate">En Taller / Rep.</span>
+            <span className="font-mono text-xs sm:text-sm font-bold text-amber-300 truncate block">{totals.repairCount} autos</span>
           </div>
         </div>
 
@@ -324,19 +327,30 @@ export const FleetManagerModal = ({
           </div>
         </div>
 
-        {/* Table Container */}
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-left border-collapse">
+        {/* Mobile Horizontal Scroll Hint */}
+        <div className="lg:hidden px-3.5 py-1.5 bg-blue-500/10 border-b border-blue-500/20 text-[11px] text-blue-300 flex items-center justify-between shrink-0">
+          <span className="flex items-center gap-1.5 font-medium">
+            <span>👉</span>
+            <span>Desliza la tabla para ver costos, margen y acciones</span>
+          </span>
+          <span className="font-mono text-[10px] bg-blue-500/20 px-2 py-0.5 rounded text-blue-200 shrink-0">
+            ⇄ Deslizar
+          </span>
+        </div>
+
+        {/* Table Container with smooth horizontal scrolling */}
+        <div className="flex-1 overflow-x-auto overflow-y-auto smooth-scroll-touch scrollbar-thin">
+          <table className="w-full text-left border-collapse min-w-[960px]">
             <thead className="sticky top-0 z-20 bg-[#141619] border-b border-white/[0.08] text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
               <tr>
-                <th className="py-3 px-4">Vehículo / VIN</th>
-                <th className="py-3 px-3">Estado Operativo</th>
-                <th className="py-3 px-3 text-right">Compra</th>
-                <th className="py-3 px-3 text-right">Gastos</th>
-                <th className="py-3 px-3 text-right">Inversión Total</th>
-                <th className="py-3 px-3 text-right">Target / Venta</th>
-                <th className="py-3 px-3 text-right">Utilidad Proy.</th>
-                <th className="py-3 px-4 text-center">Acciones</th>
+                <th className="py-3 px-4 min-w-[240px]">Vehículo / VIN</th>
+                <th className="py-3 px-3 min-w-[170px]">Estado Operativo</th>
+                <th className="py-3 px-3 text-right min-w-[105px] whitespace-nowrap">Compra</th>
+                <th className="py-3 px-3 text-right min-w-[95px] whitespace-nowrap">Gastos</th>
+                <th className="py-3 px-3 text-right min-w-[110px] whitespace-nowrap">Inversión Total</th>
+                <th className="py-3 px-3 text-right min-w-[110px] whitespace-nowrap">Target / Venta</th>
+                <th className="py-3 px-3 text-right min-w-[115px] whitespace-nowrap">Utilidad Proy.</th>
+                <th className="py-3 px-4 text-center min-w-[95px] whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04] text-xs">
@@ -361,15 +375,15 @@ export const FleetManagerModal = ({
                       className="hover:bg-white/[0.03] transition-colors cursor-pointer group"
                     >
                       {/* Vehicle Column */}
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 min-w-[240px]">
                         <div className="flex items-center gap-3">
                           <img
                             src={photo}
                             alt=""
                             className="w-12 h-9 rounded-lg object-cover bg-black/40 border border-white/10 shrink-0"
                           />
-                          <div>
-                            <div className="font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                          <div className="min-w-0">
+                            <div className="font-bold text-white group-hover:text-blue-400 transition-colors flex items-center gap-1.5 truncate">
                               <span>{vehicle.year} {vehicle.make} {vehicle.model}</span>
                             </div>
                             <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400 font-mono">
@@ -396,7 +410,7 @@ export const FleetManagerModal = ({
                       </td>
 
                       {/* Status Selector Dropdown */}
-                      <td className="py-3 px-3" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3 px-3 min-w-[170px]" onClick={(e) => e.stopPropagation()}>
                         <select
                           value={vehicle.status}
                           onChange={(e) => handleInlineStatusChange(vehicle, e.target.value)}
@@ -411,12 +425,12 @@ export const FleetManagerModal = ({
                       </td>
 
                       {/* Purchase Price */}
-                      <td className="py-3 px-3 text-right font-mono text-slate-300">
+                      <td className="py-3 px-3 text-right font-mono text-slate-300 whitespace-nowrap min-w-[105px]">
                         {formatCurrency(fin.purchasePrice)}
                       </td>
 
                       {/* Expenses */}
-                      <td className="py-3 px-3 text-right font-mono text-amber-400">
+                      <td className="py-3 px-3 text-right font-mono text-amber-400 whitespace-nowrap min-w-[95px]">
                         {formatCurrency(fin.totalExpenses)}
                         <span className="text-[10px] text-slate-500 block font-sans">
                           {vehicle.expenses?.length || 0} reg.
@@ -424,12 +438,12 @@ export const FleetManagerModal = ({
                       </td>
 
                       {/* Total Investment */}
-                      <td className="py-3 px-3 text-right font-mono font-bold text-white">
+                      <td className="py-3 px-3 text-right font-mono font-bold text-white whitespace-nowrap min-w-[110px]">
                         {formatCurrency(fin.totalInvestment)}
                       </td>
 
                       {/* Target Price / Rental */}
-                      <td className="py-3 px-3 text-right font-mono text-slate-200">
+                      <td className="py-3 px-3 text-right font-mono text-slate-200 whitespace-nowrap min-w-[110px]">
                         {vehicle.status === 'rented' ? (
                           <>
                             <span className="text-purple-300">{formatCurrency(fin.rentalIncome)}</span>
@@ -441,7 +455,7 @@ export const FleetManagerModal = ({
                       </td>
 
                       {/* Net Profit */}
-                      <td className="py-3 px-3 text-right font-mono">
+                      <td className="py-3 px-3 text-right font-mono whitespace-nowrap min-w-[115px]">
                         <span className={`font-bold ${fin.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {fin.netProfit >= 0 ? '+' : ''}{formatCurrency(fin.netProfit)}
                         </span>
@@ -451,7 +465,7 @@ export const FleetManagerModal = ({
                       </td>
 
                       {/* Action buttons */}
-                      <td className="py-3 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3 px-4 text-center whitespace-nowrap min-w-[95px]" onClick={(e) => e.stopPropagation()}>
                         <button
                           type="button"
                           onClick={() => {

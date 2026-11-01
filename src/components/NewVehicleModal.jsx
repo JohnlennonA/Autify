@@ -118,21 +118,24 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
   const isVinComplete = formData.vin.length === 17;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden animate-fade-in">
       {/* Clean unified dark surface */}
-      <div className="relative w-full max-w-2xl rounded-2xl border border-white/[0.08] bg-[#141619] shadow-2xl overflow-hidden p-6">
+      <div className="relative w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl border border-white/[0.08] bg-[#141619] shadow-2xl flex flex-col overflow-hidden">
         
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/[0.06] mb-5">
+        {/* Mobile sheet drag handle indicator */}
+        <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
+
+        {/* Pinned Header */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/[0.06] bg-[#141619] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
               <Car className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
                 Registrar Nuevo Vehículo
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-400">
                 Adquisición, subasta Copart/IAAI o compra privada (USA)
               </p>
             </div>
@@ -140,21 +143,23 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all shrink-0 cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+          
+          {/* Scrollable Form Body */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 smooth-scroll-touch overscroll-contain">
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
           
           {/* VIN Field with strict 17 chars validation */}
           <div className="rounded-xl bg-[#1E2025] border border-white/5 p-3.5 space-y-1.5">
@@ -280,7 +285,7 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
 
           {/* Pricing & Acquisition Date */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-semibold text-slate-300 mb-1">Costo Compra ($ USD) *</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500 font-mono text-xs">
@@ -294,12 +299,12 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
                   placeholder="15000"
                   value={formData.purchasePrice}
                   onChange={(e) => setFormData({ ...formData, purchasePrice: e.target.value })}
-                  className="w-full text-xs font-mono bg-[#1E2025] border border-white/5 rounded-lg pl-6 pr-2.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full min-w-0 text-xs font-mono bg-[#1E2025] border border-white/5 rounded-lg pl-6 pr-2.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-semibold text-slate-300 mb-1">P. Venta Estimado ($) *</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500 font-mono text-xs">
@@ -313,18 +318,18 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
                   placeholder="22000"
                   value={formData.estimatedSalePrice}
                   onChange={(e) => setFormData({ ...formData, estimatedSalePrice: e.target.value })}
-                  className="w-full text-xs font-mono bg-[#1E2025] border border-white/5 rounded-lg pl-6 pr-2.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full min-w-0 text-xs font-mono bg-[#1E2025] border border-white/5 rounded-lg pl-6 pr-2.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-semibold text-slate-300 mb-1">Fecha Adquisición</label>
               <input
                 type="date"
                 value={formData.purchaseDate}
                 onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
-                className="w-full text-xs font-mono bg-[#1E2025] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-blue-500"
+                className="w-full min-w-0 text-xs font-mono bg-[#1E2025] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -430,28 +435,29 @@ export const NewVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
               </p>
             )}
           </div>
+        </div>
 
-          {/* Submit CTA */}
-          <div className="pt-3 border-t border-white/[0.06] flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 shadow-glow-emerald active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Registrar Vehículo en Inventario</span>
-            </button>
-          </div>
+        {/* Pinned Submit Footer */}
+        <div className="px-4 sm:px-6 py-3.5 border-t border-white/[0.06] bg-[#141619] shrink-0 flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 shadow-glow-emerald active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Registrar en Inventario</span>
+          </button>
+        </div>
 
-        </form>
+      </form>
 
-      </div>
     </div>
-  );
+  </div>
+);
 };

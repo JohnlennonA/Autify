@@ -796,13 +796,13 @@ export const VehicleDetailModal = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+            <div className="min-w-0">
               <label className="block text-[10px] text-slate-400 uppercase mb-1">Frecuencia</label>
               <select
                 value={rentalForm.billingCycle}
                 onChange={(e) => setRentalForm({ ...rentalForm, billingCycle: e.target.value })}
-                className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-purple-500"
+                className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-purple-500"
               >
                 <option value="diario">Diario</option>
                 <option value="semanal">Semanal</option>
@@ -811,7 +811,7 @@ export const VehicleDetailModal = ({
               </select>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-[10px] text-slate-400 uppercase mb-1">Tarifa ($ USD) *</label>
               <input
                 type="number"
@@ -820,11 +820,11 @@ export const VehicleDetailModal = ({
                 placeholder="350"
                 value={rentalForm.rate}
                 onChange={(e) => setRentalForm({ ...rentalForm, rate: e.target.value })}
-                className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-purple-500 font-mono"
+                className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-purple-500 font-mono"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-[10px] text-slate-400 uppercase mb-1">Depósito Garantía ($)</label>
               <input
                 type="number"
@@ -832,17 +832,17 @@ export const VehicleDetailModal = ({
                 placeholder="500"
                 value={rentalForm.securityDeposit}
                 onChange={(e) => setRentalForm({ ...rentalForm, securityDeposit: e.target.value })}
-                className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-purple-500 font-mono"
+                className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-purple-500 font-mono"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-[10px] text-slate-400 uppercase mb-1">Fecha Inicio</label>
               <input
                 type="date"
                 value={rentalForm.startDate}
                 onChange={(e) => setRentalForm({ ...rentalForm, startDate: e.target.value })}
-                className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-1.5 py-2 text-white focus:outline-none focus:border-purple-500 font-mono"
+                className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-purple-500 font-mono"
               />
             </div>
           </div>
@@ -970,8 +970,8 @@ export const VehicleDetailModal = ({
               <form onSubmit={handleRecordPayment} className="rounded-xl bg-[#1E2025] border border-emerald-500/30 p-3.5 space-y-2.5">
                 <span className="text-xs font-bold text-emerald-400 block">Nuevo Cobro / Abono de Renta</span>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="min-w-0">
                     <label className="block text-[10px] text-slate-400 uppercase mb-1">Monto ($ USD) *</label>
                     <input
                       type="number"
@@ -981,16 +981,16 @@ export const VehicleDetailModal = ({
                       placeholder="350"
                       value={paymentForm.amount}
                       onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                      className="w-full text-xs font-mono bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-emerald-500"
+                      className="w-full min-w-0 text-xs font-mono bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="block text-[10px] text-slate-400 uppercase mb-1">Método de Pago</label>
                     <select
                       value={paymentForm.method}
                       onChange={(e) => setPaymentForm({ ...paymentForm, method: e.target.value })}
-                      className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-emerald-500"
+                      className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-emerald-500"
                     >
                       <option value="Zelle">Zelle</option>
                       <option value="Efectivo (Cash)">Efectivo (Cash)</option>
@@ -1000,13 +1000,13 @@ export const VehicleDetailModal = ({
                     </select>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="block text-[10px] text-slate-400 uppercase mb-1">Fecha</label>
                     <input
                       type="date"
                       value={paymentForm.date}
                       onChange={(e) => setPaymentForm({ ...paymentForm, date: e.target.value })}
-                      className="w-full text-xs font-mono bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-emerald-500"
+                      className="w-full min-w-0 text-xs font-mono bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-emerald-500"
                     />
                   </div>
                 </div>
@@ -1208,8 +1208,8 @@ export const VehicleDetailModal = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div className="sm:col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="sm:col-span-2 min-w-0">
             <label className="block text-[10px] text-slate-400 uppercase mb-1">Descripción del Gasto *</label>
             <input
               disabled={vehicle.status === 'sold'}
@@ -1218,18 +1218,18 @@ export const VehicleDetailModal = ({
               placeholder="Ej. Título limpio DMV, grúa subasta, parachoques..."
               value={expenseDesc}
               onChange={(e) => setExpenseDesc(e.target.value)}
-              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:cursor-not-allowed"
+              className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2.5 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:cursor-not-allowed"
             />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <label className="block text-[10px] text-slate-400 uppercase mb-1">Fecha</label>
             <input
               disabled={vehicle.status === 'sold'}
               type="date"
               value={expenseDate}
               onChange={(e) => setExpenseDate(e.target.value)}
-              className="w-full text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-slate-100 focus:outline-none focus:border-amber-500 font-mono disabled:cursor-not-allowed"
+              className="w-full min-w-0 text-xs bg-[#141619] border border-white/5 rounded-lg px-2 py-2 text-slate-100 focus:outline-none focus:border-amber-500 font-mono disabled:cursor-not-allowed"
             />
           </div>
         </div>
