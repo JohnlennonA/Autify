@@ -601,7 +601,7 @@ export const KpiDetailModal = ({
                           {/* Customer & Contract Details Grid */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2 border-t border-white/[0.04]">
                             <div className="p-2.5 rounded-lg bg-[#141619] border border-white/[0.03]">
-                              <span className="text-[10px] text-slate-400 uppercase tracking-wider block flex items-center gap-1">
+                              <span className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                 <User className="w-3 h-3 text-purple-400" /> Cliente / Arrendatario
                               </span>
                               <span className="text-xs font-bold text-white mt-1 block">
@@ -613,7 +613,7 @@ export const KpiDetailModal = ({
                             </div>
 
                             <div className="p-2.5 rounded-lg bg-[#141619] border border-white/[0.03]">
-                              <span className="text-[10px] text-slate-400 uppercase tracking-wider block flex items-center gap-1">
+                              <span className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                 <FileText className="w-3 h-3 text-purple-400" /> Licencia / Documento
                               </span>
                               <span className="text-xs font-mono text-slate-200 mt-1 block">
@@ -625,7 +625,7 @@ export const KpiDetailModal = ({
                             </div>
 
                             <div className="p-2.5 rounded-lg bg-[#141619] border border-white/[0.03]">
-                              <span className="text-[10px] text-slate-400 uppercase tracking-wider block flex items-center gap-1">
+                              <span className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                 <Clock className="w-3 h-3 text-purple-400" /> Tiempo Rentado
                               </span>
                               <span className="text-xs font-bold text-emerald-400 mt-1 block font-mono">
@@ -637,7 +637,7 @@ export const KpiDetailModal = ({
                             </div>
 
                             <div className="p-2.5 rounded-lg bg-[#141619] border border-white/[0.03]">
-                              <span className="text-[10px] text-slate-400 uppercase tracking-wider block flex items-center gap-1">
+                              <span className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                 <DollarSign className="w-3 h-3 text-emerald-400" /> Cobrado a la Fecha
                               </span>
                               <span className="text-xs font-bold text-emerald-400 mt-1 block font-mono">

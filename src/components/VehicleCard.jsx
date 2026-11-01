@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Clock, Gauge, ArrowUpRight, DollarSign, Wrench, Key, User } from 'lucide-react';
+import { Copy, Check, Clock, Gauge, ArrowUpRight, Key, User } from 'lucide-react';
 import { formatCurrency, formatMileage, calculateVehicleFinancials } from '../utils/formatters';
 
 export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
@@ -193,7 +193,7 @@ export const VehicleCard = ({ vehicle, onSelectVehicle, onCopyVin }) => {
           <div className="p-2 rounded-lg bg-[#1E2025]/60 border border-white/[0.03]">
             {isRented ? (
               <>
-                <span className="block text-[10px] text-slate-400 uppercase tracking-wider truncate flex items-center justify-center gap-0.5">
+                <span className="flex items-center justify-center gap-1 text-[10px] text-slate-400 uppercase tracking-wider truncate">
                   <User className="w-2.5 h-2.5 text-purple-400" /> Arrendatario
                 </span>
                 <span className="block text-xs font-bold text-white truncate mt-1">

@@ -1312,7 +1312,7 @@ export const VehicleDetailModal = ({
         </div>
 
         {/* Mobile/Tablet Single Clean Scroll Content Container (lg:hidden) */}
-        <div className="block lg:hidden flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="lg:hidden flex-1 overflow-y-auto p-4 sm:p-6">
           {mobileTab === 'ficha' && renderPanelFicha()}
           {mobileTab === 'renta' && renderPanelRenta()}
           {mobileTab === 'gastos' && renderPanelGastos()}
