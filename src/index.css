@@ -25,7 +25,13 @@
 /* Safe padding in Desktop / Mobile PWA standalone mode */
 @media all and (display-mode: standalone) {
   .pwa-header-safe {
-    padding-top: max(env(safe-area-inset-top, 0px), 14px) !important;
+    padding-top: max(env(safe-area-inset-top, 0px), 22px) !important;
+  }
+  .pwa-sidebar-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 24px) !important;
+  }
+  .pwa-sidebar-header-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 24px) !important;
   }
 }
 

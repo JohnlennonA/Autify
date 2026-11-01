@@ -105,15 +105,15 @@ export const Sidebar = ({
       {/* 1. SLIM ICON RAIL (EL SIDEBAR MÁS NEGRITO)                            */}
       {/* Visible ONLY on narrow screens (< lg)                                */}
       {/* ===================================================================== */}
-      <aside className="hidden md:flex lg:hidden sticky top-0 left-0 z-30 h-screen w-[68px] flex-col items-center justify-between py-4 border-r border-white/[0.08] bg-[#000000] shrink-0 select-none">
+      <aside className="hidden md:flex lg:hidden sticky top-0 left-0 z-30 h-screen w-[68px] flex-col items-center justify-between pb-4 pt-[max(env(safe-area-inset-top,0px),16px)] pwa-sidebar-safe border-r border-white/[0.08] bg-[#000000] shrink-0 select-none">
         
         {/* Top: Brand Logo Button (Opens drawer sidebar) */}
-        <div className="flex flex-col items-center gap-3 w-full">
+        <div className="flex flex-col items-center gap-3 w-full mt-1">
           <button
             onClick={() => {
               if (setIsMobileOpen) setIsMobileOpen(true);
             }}
-            className="w-10 h-10 rounded-xl bg-[#0F1013] border border-white/10 hover:border-[#CCFF00]/60 flex items-center justify-center p-1.5 transition-all group shadow-sm cursor-pointer"
+            className="w-11 h-11 rounded-xl bg-[#0F1013] border border-white/10 hover:border-[#CCFF00]/60 flex items-center justify-center p-2 transition-all group shadow-sm cursor-pointer active:scale-95"
             title="Abrir menú completo"
           >
             <img
@@ -242,7 +242,7 @@ export const Sidebar = ({
         }`}
       >
         {/* Top: Clean Brand Header (NO screaming yellow button, NO duplicate logos) */}
-        <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-[#000000]">
+        <div className="px-4 py-4 pt-[max(env(safe-area-inset-top,0px),16px)] pwa-sidebar-header-safe border-b border-white/[0.08] flex items-center justify-between bg-[#000000]">
           <div className="flex items-center gap-2.5">
             <img
               src="/images/autify-logo.png"
